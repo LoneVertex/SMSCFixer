@@ -1,7 +1,10 @@
 package com.smscfixer;
 
+import android.os.Build;
+
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -13,8 +16,16 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public class SmscFixer implements IXposedHookLoadPackage {
     private static final String TAG = "SmscFixer";
     private static final String FORCED_SMSC = "+20105996500";
+    private static final String[] ROM_DIAGNOSTIC_KEYWORDS = {
+            "a21s",
+            "sm-a217",
+            "infinity x",
+            "infinityx"
+    };
 
     private static volatile boolean hookedInProcess;
+    private static volatile boolean romDiagnosticsEnabled;
+    private static volatile boolean romDiagnosticsInitialized;
     private static final Object HOOK_LOCK = new Object();
 
     private static final XC_MethodHook FORCE_SMSC_HOOK = new XC_MethodHook() {
@@ -31,6 +42,9 @@ public class SmscFixer implements IXposedHookLoadPackage {
             XposedBridge.log(TAG + ": " + param.method.getName() + " scAddress="
                     + (original == null ? "null" : String.valueOf(original))
                     + " -> " + FORCED_SMSC);
+            if (romDiagnosticsEnabled) {
+                XposedBridge.log(TAG + ": diag hook signature=" + param.method);
+            }
         }
     };
 
@@ -39,6 +53,15 @@ public class SmscFixer implements IXposedHookLoadPackage {
         synchronized (HOOK_LOCK) {
             if (hookedInProcess) {
                 return;
+            }
+            if (!romDiagnosticsInitialized) {
+                romDiagnosticsEnabled = detectRomDiagnosticsEnabled();
+                romDiagnosticsInitialized = true;
+                if (romDiagnosticsEnabled) {
+                    XposedBridge.log(TAG + ": ROM diagnostics enabled for model="
+                            + Build.MODEL + " device=" + Build.DEVICE
+                            + " display=" + Build.DISPLAY);
+                }
             }
         }
 
@@ -50,17 +73,25 @@ public class SmscFixer implements IXposedHookLoadPackage {
             return;
         }
 
-        int hookedCount = hookCompatibleSendMethods(smsManagerClass);
+        if (romDiagnosticsEnabled) {
+            XposedBridge.log(TAG + ": analyzing package=" + lpparam.packageName
+                    + " process=" + lpparam.processName);
+        }
+
+        int hookedCount = hookCompatibleSendMethods(smsManagerClass, romDiagnosticsEnabled);
         synchronized (HOOK_LOCK) {
             hookedInProcess = hookedCount > 0;
         }
     }
 
-    private static int hookCompatibleSendMethods(Class<?> clazz) {
+    private static int hookCompatibleSendMethods(Class<?> clazz, boolean diagnosticsEnabled) {
         int hookedCount = 0;
         Set<String> seenSignatures = new HashSet<>();
         for (Method method : clazz.getDeclaredMethods()) {
             if (!isCompatibleSmsSendMethod(method)) {
+                if (diagnosticsEnabled && method.getName().startsWith("send")) {
+                    XposedBridge.log(TAG + ": diag skipped incompatible method " + method);
+                }
                 continue;
             }
             String signature = method.toString();
@@ -77,6 +108,18 @@ public class SmscFixer implements IXposedHookLoadPackage {
         }
         XposedBridge.log(TAG + ": compatible methods hooked=" + hookedCount);
         return hookedCount;
+    }
+
+    private static boolean detectRomDiagnosticsEnabled() {
+        String romInfo = (Build.BRAND + "|" + Build.MANUFACTURER + "|" + Build.MODEL + "|"
+                + Build.DEVICE + "|" + Build.PRODUCT + "|" + Build.DISPLAY + "|"
+                + Build.FINGERPRINT).toLowerCase(Locale.ROOT);
+        for (String keyword : ROM_DIAGNOSTIC_KEYWORDS) {
+            if (romInfo.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isCompatibleSmsSendMethod(Method method) {

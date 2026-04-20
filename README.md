@@ -49,3 +49,11 @@ Send an SMS and check logs:
 - `adb logcat -s Xposed | grep SmscFixer`
 
 You should see `scAddress` being replaced with `+20105996500`.
+
+### ROM diagnostics mode (A21s / Infinity X)
+
+On detected A21s/Infinity-X style ROM identifiers, the module enables extra diagnostic logs automatically to help tune compatibility.
+
+Use:
+
+- `adb logcat -d -s Xposed | grep "SmscFixer: diag"`
