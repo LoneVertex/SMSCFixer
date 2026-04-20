@@ -4,22 +4,22 @@ This repository now contains a build-ready Android Studio LSPosed/Xposed module 
 
 ## Project files
 
-- `/home/runner/work/v1/v1/app/src/main/java/com/smscfixer/SmscFixer.java`
-- `/home/runner/work/v1/v1/app/src/main/AndroidManifest.xml`
-- `/home/runner/work/v1/v1/app/src/main/assets/xposed_init`
-- `/home/runner/work/v1/v1/app/build.gradle`
-- `/home/runner/work/v1/v1/build.gradle`
-- `/home/runner/work/v1/v1/settings.gradle`
+- `app/src/main/java/com/smscfixer/SmscFixer.java`
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/assets/xposed_init`
+- `app/build.gradle`
+- `build.gradle`
+- `settings.gradle`
 
 ## Build
 
-1. Open `/home/runner/work/v1/v1` in Android Studio.
+1. Open the project root in Android Studio.
 2. Sync Gradle.
 3. Build debug APK:
    - `./gradlew assembleDebug`
 
 APK output:
-- `/home/runner/work/v1/v1/app/build/outputs/apk/debug/app-debug.apk`
+- `app/build/outputs/apk/debug/app-debug.apk`
 
 ## Install and enable
 
