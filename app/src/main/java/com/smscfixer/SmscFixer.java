@@ -1,8 +1,8 @@
 package com.smscfixer;
 
-import android.app.PendingIntent;
-
-import java.util.ArrayList;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -20,7 +20,13 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static final XC_MethodHook FORCE_SMSC_HOOK = new XC_MethodHook() {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) {
+            if (param.args == null || param.args.length < 2) {
+                return;
+            }
             Object original = param.args[1];
+            if (FORCED_SMSC.equals(original)) {
+                return;
+            }
             param.args[1] = FORCED_SMSC;
             XposedBridge.log(TAG + ": " + param.method.getName() + " scAddress="
                     + (original == null ? "null" : String.valueOf(original))
@@ -34,51 +40,55 @@ public class SmscFixer implements IXposedHookLoadPackage {
             if (hookedInProcess) {
                 return;
             }
-            hookedInProcess = true;
         }
 
         final Class<?> smsManagerClass;
         try {
-            smsManagerClass = Class.forName("android.telephony.SmsManager", false, null);
-        } catch (ClassNotFoundException e) {
+            smsManagerClass = XposedHelpers.findClass("android.telephony.SmsManager", lpparam.classLoader);
+        } catch (Throwable e) {
             XposedBridge.log(TAG + ": SmsManager not found: " + e);
             return;
         }
 
-        safeHook(smsManagerClass, "sendTextMessage",
-                String.class, String.class, String.class,
-                PendingIntent.class, PendingIntent.class,
-                FORCE_SMSC_HOOK);
-
-        safeHook(smsManagerClass, "sendTextMessage",
-                String.class, String.class, String.class,
-                PendingIntent.class, PendingIntent.class, long.class,
-                FORCE_SMSC_HOOK);
-
-        safeHook(smsManagerClass, "sendTextMessageWithoutPersisting",
-                String.class, String.class, String.class,
-                PendingIntent.class, PendingIntent.class,
-                FORCE_SMSC_HOOK);
-
-        safeHook(smsManagerClass, "sendMultipartTextMessage",
-                String.class, String.class, ArrayList.class,
-                ArrayList.class, ArrayList.class,
-                FORCE_SMSC_HOOK);
-
-        safeHook(smsManagerClass, "sendMultipartTextMessage",
-                String.class, String.class, ArrayList.class,
-                ArrayList.class, ArrayList.class, long.class,
-                FORCE_SMSC_HOOK);
+        int hookedCount = hookCompatibleSendMethods(smsManagerClass);
+        synchronized (HOOK_LOCK) {
+            hookedInProcess = hookedCount > 0;
+        }
     }
 
-    private static void safeHook(Class<?> clazz, String methodName, Object... args) {
-        try {
-            XposedHelpers.findAndHookMethod(clazz, methodName, args);
-            XposedBridge.log(TAG + ": hooked " + methodName);
-        } catch (NoSuchMethodError e) {
-            XposedBridge.log(TAG + ": method missing " + methodName + ": " + e.getMessage());
-        } catch (Throwable t) {
-            XposedBridge.log(TAG + ": hook error in " + methodName + ": " + t);
+    private static int hookCompatibleSendMethods(Class<?> clazz) {
+        int hookedCount = 0;
+        Set<String> seenSignatures = new HashSet<>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (!isCompatibleSmsSendMethod(method)) {
+                continue;
+            }
+            String signature = method.toString();
+            if (!seenSignatures.add(signature)) {
+                continue;
+            }
+            try {
+                XposedBridge.hookMethod(method, FORCE_SMSC_HOOK);
+                hookedCount++;
+                XposedBridge.log(TAG + ": hooked " + method.getName() + " " + signature);
+            } catch (Throwable t) {
+                XposedBridge.log(TAG + ": hook error in " + method.getName() + ": " + t);
+            }
         }
+        XposedBridge.log(TAG + ": compatible methods hooked=" + hookedCount);
+        return hookedCount;
+    }
+
+    private static boolean isCompatibleSmsSendMethod(Method method) {
+        if (!method.getName().startsWith("send")) {
+            return false;
+        }
+        if (method.getReturnType() != Void.TYPE) {
+            return false;
+        }
+        Class<?>[] params = method.getParameterTypes();
+        return params.length >= 2
+                && params[0] == String.class
+                && params[1] == String.class;
     }
 }

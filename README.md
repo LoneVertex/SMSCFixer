@@ -1,6 +1,6 @@
 # SmscFixer (LSPosed Module)
 
-This repository now contains a build-ready Android Studio LSPosed/Xposed module that forces the SMSC to `+20105996500` for every `SmsManager` send path.
+This repository now contains a build-ready Android Studio LSPosed/Xposed module that forces the SMSC to `+20105996500` for compatible `SmsManager` send paths, with dynamic hook discovery to improve compatibility across vendor/custom Android builds (including newer Android API variants).
 
 ## Project files
 
