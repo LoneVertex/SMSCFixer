@@ -21,6 +21,17 @@ This repository now contains a build-ready Android Studio LSPosed/Xposed module 
 APK output:
 - `app/build/outputs/apk/debug/app-debug.apk`
 
+## Production readiness
+
+Production controls and runbooks are available at:
+
+- Deployment config: `/home/runner/work/v1/v1/deploy/production.config.yml`
+- Secrets template: `/home/runner/work/v1/v1/deploy/.env.production.example`
+- Migration policy: `/home/runner/work/v1/v1/docs/production/migrations.md`
+- Monitoring and alerts: `/home/runner/work/v1/v1/docs/production/monitoring-alerts.md`
+- Rollback plan: `/home/runner/work/v1/v1/docs/production/rollback.md`
+- Prod-like smoke test: `/home/runner/work/v1/v1/scripts/smoke_test_prod_like.sh`
+
 ## Install and enable
 
 1. Install APK: `adb install -r app/build/outputs/apk/debug/app-debug.apk`

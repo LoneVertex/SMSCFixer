@@ -1,0 +1,49 @@
+app:
+  name: SmscFixer
+  package: com.smscfixer
+  module_type: lsposed
+
+deployment:
+  environment: production
+  artifact:
+    path: app/build/outputs/apk/release/app-release.apk
+  rollout:
+    strategy: staged
+    stages:
+      - name: internal
+        scope: "internal/rooted test devices"
+      - name: limited
+        scope: "small trusted cohort"
+      - name: full
+        scope: "all target devices"
+
+env_and_secrets:
+  required:
+    - RELEASE_KEYSTORE_BASE64
+    - RELEASE_KEYSTORE_PASSWORD
+    - RELEASE_KEY_ALIAS
+    - RELEASE_KEY_PASSWORD
+  optional:
+    - TELEMETRY_WEBHOOK_URL
+    - ALERT_EMAIL_TO
+
+migrations:
+  required_on_release: true
+  policy_file: docs/production/migrations.md
+
+monitoring:
+  log_tag: SmscFixer
+  health_signals:
+    - "No crashes during module load"
+    - "Hook install log present after reboot"
+    - "SMSC replacement log present when sending SMS"
+  alerts:
+    - "Crash spike or repeated hook error logs"
+    - "No successful hook logs after release rollout"
+
+rollback:
+  policy_file: docs/production/rollback.md
+
+smoke_tests:
+  script: scripts/smoke_test_prod_like.sh
+  required: true
