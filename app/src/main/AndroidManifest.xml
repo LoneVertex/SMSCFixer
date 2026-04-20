@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.smscfixer">
+
+    <application
+        android:allowBackup="false"
+        android:hasCode="true"
+        android:label="SmscFixer">
+
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+
+        <meta-data
+            android:name="xposeddescription"
+            android:value="Forces SMSC to Vodafone Egypt (+20105996500) for all SmsManager send paths." />
+
+        <meta-data
+            android:name="xposedminversion"
+            android:value="93" />
+    </application>
+
+</manifest>
