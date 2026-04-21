@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_sim1_primary_smsc">SIM1 / Primary SMSC</string>
+    <string name="settings_sim2_secondary_smsc">SIM2 / Secondary SMSC</string>
+    <string name="settings_target_app_packages">Target app packages (comma-separated). Android framework is always allowed.</string>
+    <string name="settings_diagnostics_logging">Enable extra diagnostics logging</string>
+    <string name="settings_save">Save settings</string>
+    <string name="settings_saved_reboot">Saved. Reboot device (or restart target apps) to reload hooks.</string>
+    <string name="settings_saved_readability_failed">Saved, but prefs file readability update failed for Xposed.</string>
+    <string name="settings_save_failed">Save failed.</string>
+</resources>
