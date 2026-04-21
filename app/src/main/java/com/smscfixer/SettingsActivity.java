@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.io.File;
 
 public class SettingsActivity extends Activity {
@@ -68,10 +69,39 @@ public class SettingsActivity extends Activity {
     }
 
     private boolean makePrefsReadableForXposed() {
+        File dataDir = new File(getApplicationInfo().dataDir);
         File prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
         File prefsFile = new File(prefsDir, PREFS_NAME + ".xml");
-        boolean dirReadable = prefsDir.exists() && prefsDir.setReadable(true, false);
-        boolean fileReadable = prefsFile.exists() && prefsFile.setReadable(true, false);
-        return dirReadable && fileReadable;
+        if (!isSafePrefsPath(dataDir, prefsDir, prefsFile)) {
+            return false;
+        }
+        boolean dataDirReadable = ensureWorldReadable(dataDir, true);
+        boolean dirReadable = ensureWorldReadable(prefsDir, true);
+        boolean fileReadable = ensureWorldReadable(prefsFile, false);
+        return dataDirReadable && dirReadable && fileReadable;
+    }
+
+    private static boolean isSafePrefsPath(File dataDir, File prefsDir, File prefsFile) {
+        try {
+            String dataDirPath = dataDir.getCanonicalPath();
+            String prefsDirPath = prefsDir.getCanonicalPath();
+            String prefsFilePath = prefsFile.getCanonicalPath();
+            return prefsDirPath.startsWith(dataDirPath + File.separator)
+                    && prefsFilePath.startsWith(prefsDirPath + File.separator);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private static boolean ensureWorldReadable(File path, boolean executable) {
+        if (path == null || !path.exists()) {
+            return false;
+        }
+        boolean readable = path.setReadable(true, false) || path.canRead();
+        if (!executable) {
+            return readable;
+        }
+        boolean traversable = path.setExecutable(true, false) || path.canExecute();
+        return readable && traversable;
     }
 }

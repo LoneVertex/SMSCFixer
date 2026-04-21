@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">SmscFixer</string>
+    <string name="settings_activity_label">SmscFixer Settings</string>
+    <string name="xposed_description">Forces SMSC by SIM slot with configurable SIM1/SIM2 values, carrier-aware fallback, and compatibility hooks for SmsManager send paths.</string>
     <string name="settings_sim1_primary_smsc">SIM1 / Primary SMSC</string>
     <string name="settings_sim2_secondary_smsc">SIM2 / Secondary SMSC</string>
     <string name="settings_target_app_packages">Target app packages (comma-separated). Android framework is always allowed.</string>
     <string name="settings_diagnostics_logging">Enable extra diagnostics logging</string>
+    <string name="settings_sim_mapping_help">Quick test configuration: save settings, scope module to android and your SMS app, reboot or restart scoped apps, then send one SMS per SIM and inspect Xposed logs for slotIndex/carrier/subId mapping.</string>
     <string name="settings_save">Save settings</string>
     <string name="settings_saved_reboot">Saved. Reboot device (or restart target apps) to reload hooks.</string>
     <string name="settings_saved_readability_failed">Saved, but prefs file readability update failed for Xposed.</string>

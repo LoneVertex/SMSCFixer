@@ -22,9 +22,12 @@ It includes dynamic hook discovery to improve compatibility across vendor/custom
 2. Sync Gradle.
 3. Build debug APK:
    - `./gradlew assembleDebug`
+4. Optional production artifact build (unsigned unless release signing is configured in your environment):
+   - `./gradlew assembleRelease`
 
 APK output:
 - `app/build/outputs/apk/debug/app-debug.apk`
+- `app/build/outputs/apk/release/app-release-unsigned.apk`
 
 ## Production readiness
 
@@ -75,6 +78,15 @@ Use:
 3. Check:
    - `adb logcat -s Xposed | grep SmscFixer`
 4. Confirm logs show expected `slotIndex`/carrier details and corresponding forced SMSC.
+
+### Quick test configuration checklist
+
+1. Save primary/secondary SMSC values in **SmscFixer Settings**.
+2. Ensure LSPosed scope includes `android` and the SMS app you are testing.
+3. Reboot device (or restart scoped apps/processes).
+4. Send one SMS from each SIM and inspect logs:
+   - `adb logcat -s Xposed | grep SmscFixer`
+5. Validate `slotIndex`, carrier/subscription mapping, and forced `scAddress`.
 
 ### If SIM2 still uses SIM1 SMSC
 

@@ -6,7 +6,7 @@ app:
 deployment:
   environment: production
   artifact:
-    path: app/build/outputs/apk/release/app-release.apk
+    path: app/build/outputs/apk/release/app-release-unsigned.apk
   rollout:
     strategy: staged
     stages:

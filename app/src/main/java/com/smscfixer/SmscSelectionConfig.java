@@ -2,6 +2,7 @@ package com.smscfixer;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,6 @@ public final class SmscSelectionConfig {
                 : Collections.unmodifiableMap(new HashMap<>(carrierNameFallbacks));
         this.targetPackages = targetPackages == null
                 ? Collections.emptySet()
-                : Collections.unmodifiableSet(targetPackages);
+                : Collections.unmodifiableSet(new LinkedHashSet<>(targetPackages));
     }
 }
