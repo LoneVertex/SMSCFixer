@@ -205,8 +205,8 @@ public class SmscFixer implements IXposedHookLoadPackage {
         }
         for (Object arg : args) {
             if (arg instanceof Integer) {
-                int value = (Integer) arg;
-                if (value >= 0) {
+                Integer value = (Integer) arg;
+                if (isValidSubscriptionId(value)) {
                     return value;
                 }
             }
@@ -369,12 +369,14 @@ public class SmscFixer implements IXposedHookLoadPackage {
 
     private static boolean shouldLogThrottled(String key) {
         long now = System.currentTimeMillis();
-        Long last = THROTTLED_LOGS.get(key);
-        if (last != null && (now - last) < FALLBACK_LOG_THROTTLE_MS) {
-            return false;
+        synchronized (THROTTLED_LOGS) {
+            Long last = THROTTLED_LOGS.get(key);
+            if (last != null && (now - last) < FALLBACK_LOG_THROTTLE_MS) {
+                return false;
+            }
+            THROTTLED_LOGS.put(key, now);
+            return true;
         }
-        THROTTLED_LOGS.put(key, now);
-        return true;
     }
 
     private static boolean shouldHandlePackage(String packageName, Set<String> targetPackages) {

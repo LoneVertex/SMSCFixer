@@ -42,7 +42,7 @@ public final class SmscSelector {
         if (value == null) {
             return "";
         }
-        return value.replaceAll("[^0-9]", "").trim();
+        return value.trim().replaceAll("[^0-9]", "");
     }
 
     public static String normalizeCarrierName(String value) {
