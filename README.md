@@ -1,6 +1,11 @@
 # SmscFixer (LSPosed Module)
 
-This repository now contains a build-ready Android Studio LSPosed/Xposed module that forces the SMSC to `+20105996500` for compatible `SmsManager` send paths, with dynamic hook discovery to improve compatibility across vendor/custom Android builds (including newer Android API variants).
+This repository now contains a build-ready Android Studio LSPosed/Xposed module that forces SMSC by SIM slot for compatible `SmsManager` send paths:
+
+- SIM1 / primary slot: Vodafone Egypt `+20105996500`
+- SIM2 / secondary slot: Orange Egypt `+20122000020`
+
+It includes dynamic hook discovery to improve compatibility across vendor/custom Android builds (including newer Android API variants).
 
 ## Project files
 
@@ -48,7 +53,10 @@ Send an SMS and check logs:
 
 - `adb logcat -s Xposed | grep SmscFixer`
 
-You should see `scAddress` being replaced with `+20105996500`.
+You should see `scAddress` being replaced with:
+
+- `+20105996500` for SIM1/primary slot
+- `+20122000020` for SIM2/secondary slot
 
 ### ROM diagnostics mode (A21s / Infinity X)
 

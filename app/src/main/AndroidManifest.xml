@@ -12,7 +12,7 @@
 
         <meta-data
             android:name="xposeddescription"
-            android:value="Forces SMSC to Vodafone Egypt (+20105996500) for compatible SmsManager send paths across ROM/API variants." />
+            android:value="Forces SMSC by SIM slot for compatible SmsManager send paths: SIM1 Vodafone Egypt (+20105996500), SIM2 Orange Egypt (+20122000020)." />
 
         <meta-data
             android:name="xposedminversion"

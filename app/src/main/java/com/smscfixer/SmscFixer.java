@@ -15,7 +15,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class SmscFixer implements IXposedHookLoadPackage {
     private static final String TAG = "SmscFixer";
-    private static final String FORCED_SMSC = "+20105996500";
+    private static final String FORCED_SMSC_PRIMARY = "+20105996500"; // Vodafone Egypt
+    private static final String FORCED_SMSC_SECONDARY = "+20122000020"; // Orange Egypt
+    private static final int PRIMARY_SLOT_INDEX = 0;
+    private static final int SECONDARY_SLOT_INDEX = 1;
+    private static final int INVALID_SUBSCRIPTION_ID = -1;
+    private static final int INVALID_SLOT_INDEX = -1;
     private static final String[] ROM_DIAGNOSTIC_KEYWORDS = {
             "a21s",
             "sm-a217",
@@ -34,14 +39,15 @@ public class SmscFixer implements IXposedHookLoadPackage {
             if (param.args == null || param.args.length < 2) {
                 return;
             }
+            String forcedSmsc = resolveForcedSmsc(param);
             Object original = param.args[1];
-            if (FORCED_SMSC.equals(original)) {
+            if (forcedSmsc.equals(original)) {
                 return;
             }
-            param.args[1] = FORCED_SMSC;
+            param.args[1] = forcedSmsc;
             XposedBridge.log(TAG + ": " + param.method.getName() + " scAddress="
                     + (original == null ? "null" : String.valueOf(original))
-                    + " -> " + FORCED_SMSC);
+                    + " -> " + forcedSmsc);
             if (romDiagnosticsEnabled) {
                 XposedBridge.log(TAG + ": diag hook signature=" + param.method);
             }
@@ -133,5 +139,53 @@ public class SmscFixer implements IXposedHookLoadPackage {
         return params.length >= 2
                 && params[0] == String.class
                 && params[1] == String.class;
+    }
+
+    private static String resolveForcedSmsc(XC_MethodHook.MethodHookParam param) {
+        int subId = resolveSubscriptionId(param);
+        int slotIndex = resolveSlotIndex(subId);
+        if (slotIndex == SECONDARY_SLOT_INDEX) {
+            if (romDiagnosticsEnabled) {
+                XposedBridge.log(TAG + ": diag selected secondary SMSC for subId=" + subId
+                        + " slotIndex=" + slotIndex);
+            }
+            return FORCED_SMSC_SECONDARY;
+        }
+        if (romDiagnosticsEnabled) {
+            XposedBridge.log(TAG + ": diag selected primary SMSC for subId=" + subId
+                    + " slotIndex=" + slotIndex);
+        }
+        return FORCED_SMSC_PRIMARY;
+    }
+
+    private static int resolveSubscriptionId(XC_MethodHook.MethodHookParam param) {
+        if (param.thisObject == null) {
+            return INVALID_SUBSCRIPTION_ID;
+        }
+        try {
+            Object value = XposedHelpers.callMethod(param.thisObject, "getSubscriptionId");
+            if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        } catch (Throwable ignored) {
+            // Keep fallback behavior for ROM/API variants where method is absent/inaccessible.
+        }
+        return INVALID_SUBSCRIPTION_ID;
+    }
+
+    private static int resolveSlotIndex(int subId) {
+        if (subId == INVALID_SUBSCRIPTION_ID) {
+            return INVALID_SLOT_INDEX;
+        }
+        try {
+            Class<?> subscriptionManager = Class.forName("android.telephony.SubscriptionManager");
+            Object result = XposedHelpers.callStaticMethod(subscriptionManager, "getSlotIndex", subId);
+            if (result instanceof Integer) {
+                return (Integer) result;
+            }
+        } catch (Throwable ignored) {
+            // Keep fallback behavior for ROM/API variants where method is absent/inaccessible.
+        }
+        return INVALID_SLOT_INDEX;
     }
 }
