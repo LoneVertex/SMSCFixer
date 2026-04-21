@@ -123,10 +123,13 @@ public class SettingsActivity extends Activity {
     }
 
     private boolean makePrefsReadableForXposed() {
-        File dataDir = new File(getApplicationInfo().dataDir);
         File prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
         File prefsFile = new File(prefsDir, PREFS_NAME + ".xml");
-        if (!isSafePrefsPath(dataDir, prefsDir, prefsFile)) {
+        if (!isSafePrefsPath(prefsDir, prefsFile)) {
+            return false;
+        }
+        File dataDir = prefsDir.getParentFile();
+        if (dataDir == null) {
             return false;
         }
         boolean dataDirReadable = ensureWorldReadable(dataDir, true);
@@ -135,7 +138,11 @@ public class SettingsActivity extends Activity {
         return dataDirReadable && dirReadable && fileReadable;
     }
 
-    private static boolean isSafePrefsPath(File dataDir, File prefsDir, File prefsFile) {
+    private static boolean isSafePrefsPath(File prefsDir, File prefsFile) {
+        File dataDir = prefsDir.getParentFile();
+        if (dataDir == null) {
+            return false;
+        }
         try {
             String dataDirPath = dataDir.getCanonicalPath();
             String prefsDirPath = prefsDir.getCanonicalPath();

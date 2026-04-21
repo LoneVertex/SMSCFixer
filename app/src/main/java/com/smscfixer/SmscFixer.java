@@ -29,6 +29,7 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static final int SECONDARY_SLOT_INDEX = 1;
     private static final int INVALID_SUBSCRIPTION_ID = -1;
     private static final int INVALID_SLOT_INDEX = -1;
+    // send* signatures use index 0=destination and index 1=scAddress; subId scanning starts after these.
     private static final int SUBSCRIPTION_ARG_SCAN_START_INDEX = 2;
     private static final long FALLBACK_LOG_THROTTLE_MS = 30_000L;
     private static final long REFLECTION_LOG_THROTTLE_MS = 120_000L;
