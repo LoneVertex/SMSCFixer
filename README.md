@@ -65,3 +65,27 @@ On detected A21s/Infinity-X style ROM identifiers, the module enables extra diag
 Use:
 
 - `adb logcat -d -s Xposed | grep "SmscFixer: diag"`
+
+## Troubleshooting
+
+### How to confirm active SIM/slot mapping
+
+1. Enable module scope for `android` and your messaging app.
+2. Send one SMS from SIM1 and one SMS from SIM2.
+3. Check:
+   - `adb logcat -s Xposed | grep SmscFixer`
+4. Confirm logs show expected `slotIndex`/carrier details and corresponding forced SMSC.
+
+### If SIM2 still uses SIM1 SMSC
+
+- Open **SmscFixer Settings** app and verify SIM2 SMSC is saved correctly.
+- Reboot device (or restart scoped apps/processes) after changing settings.
+- Ensure the SMS send path uses compatible `SmsManager` APIs (check `hooked` and `diag` logs).
+- Verify carrier fallback signals (`mccmnc`, `carrier`) are detected in logs when slot is unresolved.
+
+### Common LSPosed scope mistakes
+
+- Module enabled but no `android` framework scope selected.
+- Messaging app not included in LSPosed scope.
+- App/process cache not restarted after enabling scope.
+- Multiple messaging apps in use while only one is scoped.

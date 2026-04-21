@@ -12,11 +12,22 @@
 
         <meta-data
             android:name="xposeddescription"
-            android:value="Forces SMSC by SIM slot for compatible SmsManager send paths: SIM1 Vodafone Egypt (+20105996500), SIM2 Orange Egypt (+20122000020)." />
+            android:value="Forces SMSC by SIM slot with configurable SIM1/SIM2 values, carrier-aware fallback, and compatibility hooks for SmsManager send paths." />
 
         <meta-data
             android:name="xposedminversion"
             android:value="93" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="SmscFixer Settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
