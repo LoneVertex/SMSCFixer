@@ -50,11 +50,11 @@ public class SettingsActivity extends Activity {
 
             boolean readable = makePrefsReadableForXposed();
             if (stored && readable) {
-                statusText.setText("Saved. Reboot device (or restart target apps) to reload hooks.");
+                statusText.setText(R.string.settings_saved_reboot);
             } else if (stored) {
-                statusText.setText("Saved, but prefs file readability update failed for Xposed.");
+                statusText.setText(R.string.settings_saved_readability_failed);
             } else {
-                statusText.setText("Save failed.");
+                statusText.setText(R.string.settings_save_failed);
             }
         });
     }
