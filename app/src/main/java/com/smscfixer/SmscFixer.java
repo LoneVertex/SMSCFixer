@@ -3,11 +3,8 @@ package com.smscfixer;
 import android.os.Build;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +28,8 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static final int SECONDARY_SLOT_INDEX = 1;
     private static final int INVALID_SUBSCRIPTION_ID = -1;
     private static final int INVALID_SLOT_INDEX = -1;
+    // send* methods share String dest/scAddress as the first two parameters.
+    private static final int SUBSCRIPTION_ARG_SCAN_START_INDEX = 2;
     private static final long FALLBACK_LOG_THROTTLE_MS = 30_000L;
 
     private static final String[] ROM_DIAGNOSTIC_KEYWORDS = {
@@ -44,8 +43,10 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static volatile boolean romDiagnosticsAutoEnabled;
     private static volatile boolean romDiagnosticsInitialized;
     private static final Object HOOK_LOCK = new Object();
-    private static final Set<String> HOOKED_SCOPES = ConcurrentHashMap.newKeySet();
-    private static final Set<String> HOOKING_SCOPES = ConcurrentHashMap.newKeySet();
+    private static final Set<String> HOOKED_SCOPES =
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private static final Set<String> HOOKING_SCOPES =
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
     private static final Map<String, Long> THROTTLED_LOGS = new ConcurrentHashMap<>();
     private static volatile SmscSelectionConfig runtimeConfig = buildDefaultConfig();
 
@@ -109,7 +110,7 @@ public class SmscFixer implements IXposedHookLoadPackage {
         boolean hookedSuccessfully = false;
         try {
             runtimeConfig = loadRuntimeConfig();
-            if (!shouldHandlePackage(lpparam.packageName, runtimeConfig.targetPackages)) {
+            if (!SmscRuntimeConfig.shouldHandlePackage(lpparam.packageName, runtimeConfig.targetPackages)) {
                 if (romDiagnosticsEnabled) {
                     XposedBridge.log(TAG + ": skipping package=" + lpparam.packageName + " (not in target list)");
                 }
@@ -226,10 +227,10 @@ public class SmscFixer implements IXposedHookLoadPackage {
         Method method = (Method) param.method;
         Class<?>[] parameterTypes = method.getParameterTypes();
         int max = Math.min(param.args.length, parameterTypes.length);
-        for (int i = 2; i < max; i++) {
+        for (int i = SUBSCRIPTION_ARG_SCAN_START_INDEX; i < max; i++) {
             Object arg = param.args[i];
             Class<?> type = parameterTypes[i];
-            if (!(type == Integer.TYPE || type == Integer.class) || !(arg instanceof Integer)) {
+            if (type != Integer.TYPE || !(arg instanceof Integer)) {
                 continue;
             }
             Integer value = (Integer) arg;
@@ -429,16 +430,6 @@ public class SmscFixer implements IXposedHookLoadPackage {
         }
     }
 
-    static boolean shouldHandlePackage(String packageName, Set<String> targetPackages) {
-        if ("android".equals(packageName)) {
-            return true;
-        }
-        if (targetPackages == null || targetPackages.isEmpty()) {
-            return true;
-        }
-        return targetPackages.contains(packageName);
-    }
-
     private static SmscSelectionConfig loadRuntimeConfig() {
         try {
             XSharedPreferences prefs = new XSharedPreferences(MODULE_PACKAGE, PREFS_NAME);
@@ -451,12 +442,10 @@ public class SmscFixer implements IXposedHookLoadPackage {
             );
             boolean diagnosticsSetting = prefs.getBoolean("diagnostics_enabled", false);
             romDiagnosticsEnabled = romDiagnosticsAutoEnabled || diagnosticsSetting;
-            return new SmscSelectionConfig(
+            return SmscRuntimeConfig.buildConfig(
                     primary,
                     secondary,
-                    defaultMccMncFallbacks(primary, secondary),
-                    defaultCarrierNameFallbacks(primary, secondary),
-                    parsePackages(targetPackagesCsv)
+                    SmscRuntimeConfig.parsePackages(targetPackagesCsv)
             );
         } catch (Throwable t) {
             XposedBridge.log(TAG + ": config load failed, using defaults: " + t);
@@ -465,44 +454,8 @@ public class SmscFixer implements IXposedHookLoadPackage {
         }
     }
 
-    static SmscSelectionConfig buildDefaultConfig() {
-        return new SmscSelectionConfig(
-                DEFAULT_SMSC_PRIMARY,
-                DEFAULT_SMSC_SECONDARY,
-                defaultMccMncFallbacks(DEFAULT_SMSC_PRIMARY, DEFAULT_SMSC_SECONDARY),
-                defaultCarrierNameFallbacks(DEFAULT_SMSC_PRIMARY, DEFAULT_SMSC_SECONDARY),
-                new LinkedHashSet<>(Arrays.asList("com.google.android.apps.messaging", "com.android.mms"))
-        );
-    }
-
-    private static Map<String, String> defaultMccMncFallbacks(String primary, String secondary) {
-        Map<String, String> map = new HashMap<>();
-        map.put("60202", primary);   // Vodafone EG
-        map.put("60201", secondary); // Orange EG
-        return map;
-    }
-
-    private static Map<String, String> defaultCarrierNameFallbacks(String primary, String secondary) {
-        Map<String, String> map = new HashMap<>();
-        map.put(SmscSelector.normalizeCarrierName("vodafone"), primary);
-        map.put(SmscSelector.normalizeCarrierName("vodafone egypt"), primary);
-        map.put(SmscSelector.normalizeCarrierName("orange"), secondary);
-        map.put(SmscSelector.normalizeCarrierName("orange egypt"), secondary);
-        return map;
-    }
-
-    static Set<String> parsePackages(String csv) {
-        if (csv == null || csv.trim().isEmpty()) {
-            return Collections.emptySet();
-        }
-        Set<String> out = new LinkedHashSet<>();
-        for (String item : csv.split(",")) {
-            String pkg = item.trim();
-            if (!pkg.isEmpty()) {
-                out.add(pkg);
-            }
-        }
-        return out;
+    private static SmscSelectionConfig buildDefaultConfig() {
+        return SmscRuntimeConfig.buildDefaultConfig(DEFAULT_SMSC_PRIMARY, DEFAULT_SMSC_SECONDARY);
     }
 
     private static String safeValue(String value, String fallback) {

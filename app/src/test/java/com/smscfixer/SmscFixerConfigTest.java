@@ -13,36 +13,36 @@ import static org.junit.Assert.assertTrue;
 public class SmscFixerConfigTest {
     @Test
     public void parsePackagesTrimsDeduplicatesAndIgnoresEmptyValues() {
-        Set<String> parsed = SmscFixer.parsePackages(" com.test.one,com.test.two, ,com.test.one ");
+        Set<String> parsed = SmscRuntimeConfig.parsePackages(" com.test.one,com.test.two, ,com.test.one ");
         assertEquals(new LinkedHashSet<>(Arrays.asList("com.test.one", "com.test.two")), parsed);
     }
 
     @Test
     public void parsePackagesEmptyReturnsEmptySet() {
-        assertTrue(SmscFixer.parsePackages("").isEmpty());
-        assertTrue(SmscFixer.parsePackages("   ").isEmpty());
-        assertTrue(SmscFixer.parsePackages(null).isEmpty());
+        assertTrue(SmscRuntimeConfig.parsePackages("").isEmpty());
+        assertTrue(SmscRuntimeConfig.parsePackages("   ").isEmpty());
+        assertTrue(SmscRuntimeConfig.parsePackages(null).isEmpty());
     }
 
     @Test
     public void shouldHandlePackageAllowsAndroidAndEmptyTargetList() {
-        assertTrue(SmscFixer.shouldHandlePackage("android", new LinkedHashSet<>()));
-        assertTrue(SmscFixer.shouldHandlePackage("com.any.app", new LinkedHashSet<>()));
-        assertTrue(SmscFixer.shouldHandlePackage("com.any.app", null));
+        assertTrue(SmscRuntimeConfig.shouldHandlePackage("android", new LinkedHashSet<>()));
+        assertTrue(SmscRuntimeConfig.shouldHandlePackage("com.any.app", new LinkedHashSet<>()));
+        assertTrue(SmscRuntimeConfig.shouldHandlePackage("com.any.app", null));
     }
 
     @Test
     public void shouldHandlePackageMatchesOnlyTargetedPackages() {
         Set<String> targets = new LinkedHashSet<>(Arrays.asList("com.foo", "com.bar"));
-        assertTrue(SmscFixer.shouldHandlePackage("com.foo", targets));
-        assertFalse(SmscFixer.shouldHandlePackage("com.baz", targets));
+        assertTrue(SmscRuntimeConfig.shouldHandlePackage("com.foo", targets));
+        assertFalse(SmscRuntimeConfig.shouldHandlePackage("com.baz", targets));
     }
 
     @Test
     public void defaultConfigHasExpectedDefaults() {
-        SmscSelectionConfig config = SmscFixer.buildDefaultConfig();
-        assertEquals(SmscFixer.DEFAULT_SMSC_PRIMARY, config.primarySmsc);
-        assertEquals(SmscFixer.DEFAULT_SMSC_SECONDARY, config.secondarySmsc);
+        SmscSelectionConfig config = SmscRuntimeConfig.buildDefaultConfig("+111", "+222");
+        assertEquals("+111", config.primarySmsc);
+        assertEquals("+222", config.secondarySmsc);
         assertTrue(config.targetPackages.contains("com.google.android.apps.messaging"));
         assertTrue(config.targetPackages.contains("com.android.mms"));
     }

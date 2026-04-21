@@ -97,11 +97,15 @@ public class SettingsActivity extends Activity {
         if (path == null || !path.exists()) {
             return false;
         }
-        boolean readable = path.setReadable(true, false) || path.canRead();
+        boolean readableBefore = path.canRead();
+        boolean readableSet = path.setReadable(true, false);
+        boolean readable = readableSet ? path.canRead() : readableBefore;
         if (!executable) {
             return readable;
         }
-        boolean traversable = path.setExecutable(true, false) || path.canExecute();
+        boolean executableBefore = path.canExecute();
+        boolean executableSet = path.setExecutable(true, false);
+        boolean traversable = executableSet ? path.canExecute() : executableBefore;
         return readable && traversable;
     }
 }
