@@ -17,7 +17,8 @@ final class SmscRuntimeConfig {
                 new LinkedHashSet<>(java.util.Arrays.asList(
                         "com.google.android.apps.messaging",
                         "com.android.mms"
-                ))
+                )),
+                SmscConfigSchema.CURRENT_VERSION
         );
     }
 
@@ -26,7 +27,17 @@ final class SmscRuntimeConfig {
             String secondarySmsc,
             Set<String> targetPackages
     ) {
+        return buildConfig(primarySmsc, secondarySmsc, targetPackages, SmscConfigSchema.CURRENT_VERSION);
+    }
+
+    static SmscSelectionConfig buildConfig(
+            String primarySmsc,
+            String secondarySmsc,
+            Set<String> targetPackages,
+            int configVersion
+    ) {
         return new SmscSelectionConfig(
+                configVersion,
                 primarySmsc,
                 secondarySmsc,
                 defaultMccMncFallbacks(primarySmsc, secondarySmsc),

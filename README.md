@@ -39,6 +39,9 @@ Production controls and runbooks are available at:
 - Monitoring and alerts: `docs/production/monitoring-alerts.md`
 - Rollback plan: `docs/production/rollback.md`
 - Prod-like smoke test: `scripts/smoke_test_prod_like.sh`
+- PR portfolio audit: `docs/audit/pr-portfolio-deep-audit.md`
+- Security docs: `docs/security/`
+- Operations docs: `docs/operations/`
 
 ## Install and enable
 
@@ -79,14 +82,11 @@ Use:
    - `adb logcat -s Xposed | grep SmscFixer`
 4. Confirm logs show expected `slotIndex`/carrier details and corresponding forced SMSC.
 
-### Quick test configuration checklist
+### Use configuration self-check
 
-1. Save primary/secondary SMSC values in **SmscFixer Settings**.
-2. Ensure LSPosed scope includes `android` and the SMS app you are testing.
-3. Reboot device (or restart scoped apps/processes).
-4. Send one SMS from each SIM and inspect logs:
-   - `adb logcat -s Xposed | grep SmscFixer`
-5. Validate `slotIndex`, carrier/subscription mapping, and forced `scAddress`.
+1. Open **SmscFixer Settings**.
+2. Press **Run configuration self-check**.
+3. If it fails, re-save settings and validate SMSC/package formats.
 
 ### If SIM2 still uses SIM1 SMSC
 

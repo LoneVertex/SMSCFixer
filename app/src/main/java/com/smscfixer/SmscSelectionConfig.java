@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class SmscSelectionConfig {
+    public final int configVersion;
     public final String primarySmsc;
     public final String secondarySmsc;
     public final Map<String, String> mccMncFallbacks;
@@ -20,6 +21,25 @@ public final class SmscSelectionConfig {
             Map<String, String> carrierNameFallbacks,
             Set<String> targetPackages
     ) {
+        this(
+                SmscConfigSchema.CURRENT_VERSION,
+                primarySmsc,
+                secondarySmsc,
+                mccMncFallbacks,
+                carrierNameFallbacks,
+                targetPackages
+        );
+    }
+
+    public SmscSelectionConfig(
+            int configVersion,
+            String primarySmsc,
+            String secondarySmsc,
+            Map<String, String> mccMncFallbacks,
+            Map<String, String> carrierNameFallbacks,
+            Set<String> targetPackages
+    ) {
+        this.configVersion = Math.max(configVersion, SmscConfigSchema.CURRENT_VERSION);
         this.primarySmsc = primarySmsc;
         this.secondarySmsc = secondarySmsc;
         this.mccMncFallbacks = mccMncFallbacks == null

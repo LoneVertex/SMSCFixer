@@ -61,4 +61,13 @@ public class SmscSelectorTest {
         assertEquals("60201", SmscSelector.normalizeMccMnc(" 602-01 "));
         assertEquals("orange egypt", SmscSelector.normalizeCarrierName(" Orange   Egypt "));
     }
+
+    @Test
+    public void ambiguousSignalsReturnPrimarySafeFallback() {
+        assertEquals(
+                SmscSelector.DecisionReason.AMBIGUOUS_CARRIER_SIGNALS,
+                SmscSelector.selectSmscDetailed(-1, "60201", "Vodafone Egypt", config()).reason
+        );
+        assertEquals(PRIMARY, SmscSelector.selectSmsc(-1, "60201", "Vodafone Egypt", config()));
+    }
 }

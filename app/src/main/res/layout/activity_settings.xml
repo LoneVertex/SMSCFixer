@@ -18,7 +18,7 @@
             android:id="@+id/primarySmscInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="+20105996500"
+            android:hint="@string/settings_hint_primary_smsc"
             android:inputType="phone" />
 
         <TextView
@@ -31,7 +31,7 @@
             android:id="@+id/secondarySmscInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="+20122000020"
+            android:hint="@string/settings_hint_secondary_smsc"
             android:inputType="phone" />
 
         <TextView
@@ -44,7 +44,7 @@
             android:id="@+id/targetPackagesInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="com.google.android.apps.messaging,com.android.mms" />
+            android:hint="@string/settings_hint_target_packages" />
 
         <CheckBox
             android:id="@+id/diagnosticsCheck"
@@ -59,6 +59,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/settings_save" />
+
+        <Button
+            android:id="@+id/selfCheckButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/settings_self_check_action" />
 
         <TextView
             android:id="@+id/statusText"

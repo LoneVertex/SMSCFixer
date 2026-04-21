@@ -45,5 +45,14 @@ public class SmscFixerConfigTest {
         assertEquals("+222", config.secondarySmsc);
         assertTrue(config.targetPackages.contains("com.google.android.apps.messaging"));
         assertTrue(config.targetPackages.contains("com.android.mms"));
+        assertTrue(config.configVersion >= 1);
+    }
+
+    @Test
+    public void schemaNormalizesSmscAndPackages() {
+        assertEquals("+20105996500", SmscConfigSchema.normalizeSmscOrDefault("20105996500", "+fallback"));
+        assertEquals("+fallback", SmscConfigSchema.normalizeSmscOrDefault("bad-smsc", "+fallback"));
+        assertTrue(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one,com.good.two"));
+        assertFalse(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one, bad package"));
     }
 }
