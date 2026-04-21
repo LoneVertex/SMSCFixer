@@ -151,6 +151,10 @@ public class SmscFixer implements IXposedHookLoadPackage {
             }
             return FORCED_SMSC_SECONDARY;
         }
+        if (slotIndex == INVALID_SLOT_INDEX) {
+            XposedBridge.log(TAG + ": slot resolution unavailable for subId=" + subId
+                    + ", using primary SMSC fallback");
+        }
         if (romDiagnosticsEnabled) {
             XposedBridge.log(TAG + ": diag selected primary SMSC for subId=" + subId
                     + " slotIndex=" + slotIndex);
