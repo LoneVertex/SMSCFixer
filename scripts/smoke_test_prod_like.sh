@@ -21,14 +21,19 @@ if ! adb shell pm list packages | grep -q "${PACKAGE_NAME}"; then
   exit 1
 fi
 
-echo "[4/5] collecting recent logs"
+echo "[4/6] clearing logcat to avoid stale matches"
+adb logcat -c
+
+echo "[5/6] send a test SMS from the target app, then continue"
+read -r -p "Press Enter after sending the SMS..." _
+
+echo "[6/6] collecting fresh logs and verifying forced SMSC evidence"
 LOGS="$(adb logcat -d -s Xposed | grep "${LOG_TAG}" || true)"
 if [[ -z "${LOGS}" ]]; then
   echo "No ${LOG_TAG} logs found."
   exit 1
 fi
 
-echo "[5/5] verifying forced SMSC evidence in logs"
 if ! echo "${LOGS}" | grep -q "${EXPECTED_SMSC}"; then
   echo "Expected SMSC ${EXPECTED_SMSC} not found in logs."
   exit 1

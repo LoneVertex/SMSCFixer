@@ -22,9 +22,12 @@ It includes dynamic hook discovery to improve compatibility across vendor/custom
 2. Sync Gradle.
 3. Build debug APK:
    - `./gradlew assembleDebug`
+4. Optional production artifact build (unsigned unless release signing is configured in your environment):
+   - `./gradlew assembleRelease`
 
 APK output:
 - `app/build/outputs/apk/debug/app-debug.apk`
+- `app/build/outputs/apk/release/app-release-unsigned.apk`
 
 ## Production readiness
 
@@ -36,6 +39,9 @@ Production controls and runbooks are available at:
 - Monitoring and alerts: `docs/production/monitoring-alerts.md`
 - Rollback plan: `docs/production/rollback.md`
 - Prod-like smoke test: `scripts/smoke_test_prod_like.sh`
+- PR portfolio audit: `docs/audit/pr-portfolio-deep-audit.md`
+- Security docs: `docs/security/`
+- Operations docs: `docs/operations/`
 
 ## Install and enable
 
@@ -75,6 +81,12 @@ Use:
 3. Check:
    - `adb logcat -s Xposed | grep SmscFixer`
 4. Confirm logs show expected `slotIndex`/carrier details and corresponding forced SMSC.
+
+### Use configuration self-check
+
+1. Open **SmscFixer Settings**.
+2. Press **Run configuration self-check**.
+3. If it fails, re-save settings and validate SMSC/package formats.
 
 ### If SIM2 still uses SIM1 SMSC
 

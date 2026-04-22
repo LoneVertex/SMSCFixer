@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">SmscFixer</string>
+    <string name="settings_activity_label">SmscFixer Settings</string>
+    <string name="xposed_description">Forces SMSC by SIM slot with configurable SIM1/SIM2 values, carrier-aware fallback, and compatibility hooks for SmsManager send paths.</string>
     <string name="settings_sim1_primary_smsc">SIM1 / Primary SMSC</string>
     <string name="settings_sim2_secondary_smsc">SIM2 / Secondary SMSC</string>
     <string name="settings_target_app_packages">Target app packages (comma-separated). Android framework is always allowed.</string>
     <string name="settings_diagnostics_logging">Enable extra diagnostics logging</string>
+    <string name="settings_sim_mapping_help">Quick test configuration: save settings, ensure the module is scoped to android and your SMS app, reboot or restart scoped apps, then send one SMS per SIM and inspect Xposed logs for slotIndex/carrier/subId mapping.</string>
     <string name="settings_save">Save settings</string>
+    <string name="settings_self_check_action">Run configuration self-check</string>
     <string name="settings_saved_reboot">Saved. Reboot device (or restart target apps) to reload hooks.</string>
     <string name="settings_saved_readability_failed">Saved, but prefs file readability update failed for Xposed.</string>
     <string name="settings_save_failed">Save failed.</string>
+    <string name="settings_validation_invalid_smsc">Invalid SMSC format. Use digits with optional leading +.</string>
+    <string name="settings_validation_invalid_packages">Invalid package list. Use comma-separated Android package names.</string>
+    <string name="settings_self_check_ok">Self-check passed: schema, SMSC, package scope, and config readability look valid.</string>
+    <string name="settings_self_check_failed">Self-check failed. Re-save settings and verify target package list and SMSC formats.</string>
+    <string name="settings_hint_primary_smsc">+20105996500</string>
+    <string name="settings_hint_secondary_smsc">+20122000020</string>
+    <string name="settings_hint_target_packages">com.google.android.apps.messaging,com.android.mms</string>
 </resources>
