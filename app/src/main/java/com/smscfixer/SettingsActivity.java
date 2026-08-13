@@ -43,38 +43,43 @@ public class SettingsActivity extends Activity {
             String rawPrimary = primaryEdit.getText().toString();
             String rawSecondary = secondaryEdit.getText().toString();
             String rawTargets = targetPackagesEdit.getText().toString();
-
             if (!SmscConfigSchema.isSmscInputAcceptable(rawPrimary)
                     || !SmscConfigSchema.isSmscInputAcceptable(rawSecondary)) {
-                statusText.setText(R.string.settings_validation_invalid_smsc);
+                announceStatus(statusText, R.string.settings_validation_invalid_smsc);
                 return;
             }
-
             if (!SmscConfigSchema.isTargetPackagesCsvAcceptable(rawTargets)) {
-                statusText.setText(R.string.settings_validation_invalid_packages);
+                announceStatus(statusText, R.string.settings_validation_invalid_packages);
                 return;
             }
 
             String primary = SmscConfigSchema.normalizeSmscOrDefault(rawPrimary, SmscFixer.DEFAULT_SMSC_PRIMARY);
             String secondary = SmscConfigSchema.normalizeSmscOrDefault(rawSecondary, SmscFixer.DEFAULT_SMSC_SECONDARY);
             String targets = SmscConfigSchema.normalizeTargetPackagesCsv(rawTargets);
+            boolean diagnostics = diagnosticsCheck.isChecked();
 
-            boolean stored = prefs.edit()
-                    .putInt(SmscConfigSchema.KEY_SCHEMA_VERSION, SmscConfigSchema.CURRENT_VERSION)
-                    .putString(SmscConfigSchema.KEY_PRIMARY_SMSC, primary)
-                    .putString(SmscConfigSchema.KEY_SECONDARY_SMSC, secondary)
-                    .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targets)
-                    .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, diagnosticsCheck.isChecked())
-                    .commit();
-
-            boolean readable = makePrefsReadableForXposed();
-            if (stored && readable) {
-                statusText.setText(R.string.settings_saved_reboot);
-            } else if (stored) {
-                statusText.setText(R.string.settings_saved_readability_failed);
-            } else {
-                statusText.setText(R.string.settings_save_failed);
-            }
+            saveButton.setEnabled(false);
+            announceStatus(statusText, R.string.settings_saving);
+            new Thread(() -> {
+                boolean stored = prefs.edit()
+                        .putInt(SmscConfigSchema.KEY_SCHEMA_VERSION, SmscConfigSchema.CURRENT_VERSION)
+                        .putString(SmscConfigSchema.KEY_PRIMARY_SMSC, primary)
+                        .putString(SmscConfigSchema.KEY_SECONDARY_SMSC, secondary)
+                        .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targets)
+                        .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, diagnostics)
+                        .commit();
+                boolean readable = stored && makePrefsReadableForXposed();
+                runOnUiThread(() -> {
+                    saveButton.setEnabled(true);
+                    if (stored && readable) {
+                        announceStatus(statusText, R.string.settings_saved_reboot);
+                    } else if (stored) {
+                        announceStatus(statusText, R.string.settings_saved_readability_failed);
+                    } else {
+                        announceStatus(statusText, R.string.settings_save_failed);
+                    }
+                });
+            }, "SmscFixerSettingsSave").start();
         });
 
         selfCheckButton.setOnClickListener(v -> runSelfCheck(prefs, statusText));
@@ -114,28 +119,26 @@ public class SettingsActivity extends Activity {
         boolean packagesOk = SmscConfigSchema.isTargetPackagesCsvAcceptable(targetsCsv);
         Set<String> parsedTargets = SmscConfigSchema.parseAndNormalizeTargetPackages(targetsCsv);
         boolean targetScopeOk = !parsedTargets.isEmpty();
-
         if (schemaOk && smscOk && packagesOk && targetScopeOk) {
-            statusText.setText(R.string.settings_self_check_ok);
+            announceStatus(statusText, R.string.settings_self_check_ok);
         } else {
-            statusText.setText(R.string.settings_self_check_failed);
+            announceStatus(statusText, R.string.settings_self_check_failed);
         }
     }
 
+    /**
+     * XSharedPreferences needs a readable XML file on older LSPosed-compatible environments.
+     * Deliberately avoid changing the application data directory or shared_prefs directory,
+     * because broad directory traversal is an unnecessary expansion of the exposure boundary.
+     */
     private boolean makePrefsReadableForXposed() {
         File prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
         File prefsFile = new File(prefsDir, PREFS_NAME + ".xml");
-        if (!isSafePrefsPath(prefsDir, prefsFile)) {
+        if (!isSafePrefsPath(prefsDir, prefsFile) || !prefsFile.exists()) {
             return false;
         }
-        File dataDir = prefsDir.getParentFile();
-        if (dataDir == null) {
-            return false;
-        }
-        boolean dataDirReadable = ensureWorldReadable(dataDir, true);
-        boolean dirReadable = ensureWorldReadable(prefsDir, true);
-        boolean fileReadable = ensureWorldReadable(prefsFile, false);
-        return dataDirReadable && dirReadable && fileReadable;
+        boolean readableBefore = prefsFile.canRead();
+        return prefsFile.setReadable(true, false) || readableBefore;
     }
 
     private static boolean isSafePrefsPath(File prefsDir, File prefsFile) {
@@ -149,24 +152,13 @@ public class SettingsActivity extends Activity {
             String prefsFilePath = prefsFile.getCanonicalPath();
             return prefsDirPath.startsWith(dataDirPath + File.separator)
                     && prefsFilePath.startsWith(prefsDirPath + File.separator);
-        } catch (IOException e) {
+        } catch (IOException error) {
             return false;
         }
     }
 
-    private static boolean ensureWorldReadable(File path, boolean executable) {
-        if (path == null || !path.exists()) {
-            return false;
-        }
-        boolean readableBefore = path.canRead();
-        boolean readableSet = path.setReadable(true, false);
-        boolean readable = readableSet ? path.canRead() : readableBefore;
-        if (!executable) {
-            return readable;
-        }
-        boolean executableBefore = path.canExecute();
-        boolean executableSet = path.setExecutable(true, false);
-        boolean traversable = executableSet ? path.canExecute() : executableBefore;
-        return readable && traversable;
+    private static void announceStatus(TextView statusText, int messageResId) {
+        statusText.setText(messageResId);
+        statusText.announceForAccessibility(statusText.getText());
     }
 }

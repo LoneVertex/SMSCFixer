@@ -12,6 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:labelFor="@id/primarySmscInput"
             android:text="@string/settings_sim1_primary_smsc" />
 
         <EditText
@@ -25,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:labelFor="@id/secondarySmscInput"
             android:text="@string/settings_sim2_secondary_smsc" />
 
         <EditText
@@ -38,13 +40,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:labelFor="@id/targetPackagesInput"
             android:text="@string/settings_target_app_packages" />
 
         <EditText
             android:id="@+id/targetPackagesInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_hint_target_packages" />
+            android:hint="@string/settings_hint_target_packages"
+            android:inputType="textNoSuggestions" />
 
         <CheckBox
             android:id="@+id/diagnosticsCheck"
@@ -71,7 +75,8 @@
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:accessibilityLiveRegion="polite" />
 
         <TextView
             android:layout_width="match_parent"
