@@ -1,6 +1,8 @@
-# Signed Candidate and Rollback Evidence Worksheet
+# Release and Rollback Evidence
 
 This worksheet is completed by the controlled signing owner and test operator. It does not authorize a release, deploy an APK, or send an SMS message by itself.
+
+> **Repository status:** This is a reusable evidence template, so its operator-completed fields remain blank in source control. The current SMSC Guard v2.0.0 implementation is available for review in [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) as an unsigned candidate only. Populate and retain completed evidence in the approved secure release channel after controlled signing and device validation.
 
 ## Candidate identity
 

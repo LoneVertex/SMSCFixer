@@ -4,7 +4,7 @@ The current branch builds with Android Gradle Plugin 8.4, Gradle 8.6, Java 17, a
 
 Official Android release documentation shows that AGP 8.9 supports a maximum API level of 35 and requires Gradle 8.11.1 with JDK 17. It would therefore not remove the project’s SDK 36 compatibility warning. AGP 9.0 supports API level 36.1 and requires Gradle 9.1.0; this is the first documented major-version path that covers the project’s current SDK target.
 
-The AGP 9.0 release notes also describe the release as a major upgrade with API and behavior changes. Because SMSCFixer uses a small Java Android module with Xposed API dependencies, an AGP 9 migration should be isolated from telephony behavior changes and validated with the existing lint, unit, instrumentation-build, rooted-device, and release-candidate gates.
+The AGP 9.0 release notes also describe the release as a major upgrade with API and behavior changes. Because the project—then named SMSCFixer and now SMSC Guard—uses a small Java Android module with Xposed API dependencies, an AGP 9 migration should be isolated from telephony behavior changes and validated with the existing lint, unit, instrumentation-build, rooted-device, and release-candidate gates.
 
 ## Decision
 

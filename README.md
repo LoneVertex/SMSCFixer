@@ -6,6 +6,8 @@
 
 Version **2.0.0** introduces the public SMSC Guard identity, a new launcher icon, and Android application ID **`io.github.lonevertex.smscguard`**. This is a **new Android application installation**, not an in-place update of the retired `com.smscfixer` package. Before installing, retain the previous known-good APK for rollback; disable or remove the old module, install and enable SMSC Guard in LSPosed, recreate its scope, re-enter configuration, then reboot or restart scoped processes.
 
+The implementation is available for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). The v2.0.0 candidate remains unsigned and is **not** a public release.
+
 The default configuration is intended for a controlled Egyptian dual-SIM setup:
 
 | Routing evidence | Default SMSC |
@@ -25,9 +27,9 @@ Use Java 17 and an Android SDK that provides platform API 36. The repository qua
 
 The output paths are `app/build/outputs/apk/debug/app-debug.apk`, `app/build/outputs/apk/release/app-release-unsigned.apk`, and `app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`. The release APK is an **unsigned candidate**, not a production artifact. The release workflow creates an unsigned candidate manifest and SHA-256; a controlled external signing step must verify, sign, and record the final deployable APK identity.
 
-## Install and scope
+## Controlled device validation and scope
 
-Install a controlled debug/test APK with `adb install -r app/build/outputs/apk/debug/app-debug.apk`. In LSPosed Manager, enable **SMSC Guard**, scope it at least to `android` and the intended messaging package, then reboot or restart scoped processes. The default package targets are `com.google.android.apps.messaging` and `com.android.mms` when present.
+Use the debug APK only for local UI or instrumentation testing. For rooted LSPosed and routing validation, install the controlled **externally signed** candidate only after verifying its candidate manifest, SHA-256 digest, and signing evidence. In LSPosed Manager, enable **SMSC Guard**, scope it at least to `android` and the intended messaging package, then reboot or restart scoped processes. The default package targets are `com.google.android.apps.messaging` and `com.android.mms` when present.
 
 > Do not infer successful routing from a green build alone. The package migration changes LSPosed identity and stored preferences, so hook compatibility and carrier delivery require the rooted-device and controlled delivery evidence defined in the validation matrix.
 
@@ -49,6 +51,7 @@ Detailed diagnostics are opt-in from Settings and may be automatically enabled f
 | Control | Location |
 |---|---|
 | Release candidate and external signing policy | `.github/workflows/release.yml`, `deploy/production.config.yml` |
+| Current implementation review | [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate), [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) |
 | v2.0.0 migration and rollback evidence | `docs/production/smsc-guard-v2-migration.md`, `docs/production/release-and-rollback-evidence.md` |
 | Rooted-device and carrier validation cases | `docs/testing/validation-matrix.md` |
 | Test-layer responsibilities | `docs/testing/test-strategy.md` |

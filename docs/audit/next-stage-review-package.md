@@ -2,11 +2,17 @@
 
 ## Branch and scope
 
-**Branch:** `manus/smscfixer-remediation`  
-**Head at package preparation:** `85d4a5a`  
+**Historical preparation branch:** `manus/smscfixer-remediation`
+
+**Head at package preparation:** `85d4a5a`
+
 **Base:** `main` at `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43`
 
-This branch contains the original remediation program plus the next-stage assurance work. It has not been pushed, submitted as a pull request, signed, released, or deployed.
+**Current review branch:** [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate)
+
+**Current review:** [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4)
+
+This record describes the original remediation and next-stage assurance preparation. That preparation was later extended with the SMSC Guard v2.0.0 identity migration and settings redesign, then published for review. The change set has not been signed, released, deployed, installed on a controlled device by this workflow, or used for real-SMS operation.
 
 ## Change map
 
@@ -17,8 +23,10 @@ This branch contains the original remediation program plus the next-stage assura
 | `be0c7c9` | LSPosed managed shared-preferences preference path with guarded legacy fallback and unreadable-config safe default. |
 | `e72f14d` | One-device instrumentation runner plus LSPosed API 93+/legacy preference test cases. |
 | `85d4a5a` | External signing handoff verifier and signed-candidate/rollback evidence worksheet. |
+| `b63101a` through `e85e643` | SMSC Guard v2.0.0 identity migration, package rename, adaptive icon, and release/migration records. |
+| `14181a7` | Native settings UI redesign with retained behavioral and accessibility contracts. |
 
-The branch changes 43 files relative to `main`, adding testable routing/configuration components, three focused JVM test classes, one instrumentation test class, release/validation scripts, and operational/security artifacts.
+At the historical package-preparation head, the branch changed 43 files relative to `main`, adding testable routing/configuration components, three focused JVM test classes, one instrumentation test class, release/validation scripts, and operational/security artifacts. The current SMSC Guard review branch extends that snapshot with the v2.0.0 identity migration, settings UI redesign, and associated documentation.
 
 ## Completed repository-level validation
 
@@ -50,9 +58,9 @@ Review the `xposedsharedprefs` manifest metadata and `MODE_WORLD_READABLE` reque
 | Real carrier delivery | Not run | Approved test SIM/destination and separate explicit authorization before send. |
 | Signed artifact | Not created | Controlled external signing owner must use manifest/checksum/certificate handoff. |
 | Rollback rehearsal | Not run | Signed candidate and known-good signed artifact on controlled device. |
-| Remote branch / PR | Not performed | Explicit publication authorization; PR must include risk, testing evidence, and rollback notes. |
+| Remote branch / PR | Complete | [Review branch](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) and [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) are published; the PR includes risk, testing evidence, rollback notes, and release-state boundaries. |
 | AGP 8.4 / compile SDK 36 warning | Open monitoring item | Evaluate plugin/Gradle upgrade in an isolated compatibility change. |
 
 ## Review outcome
 
-The branch is ready for code review and controlled device validation. It is **not ready for production deployment** until the gated device, carrier, signing, and rollback evidence is complete. The final enhanced local assurance suite additionally passed YAML and shell validation, exact-version and secret-pattern scans, immutable-action checks, lint, JVM tests, debug/release assembly, instrumentation-test APK compilation, artifact checks, and Git diff checks.
+The current SMSC Guard review branch is ready for code review and controlled device validation through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). It is **not ready for production deployment** until the gated device, carrier, signing, and rollback evidence is complete. The final enhanced local assurance suite additionally passed YAML and shell validation, exact-version and secret-pattern scans, immutable-action checks, lint, JVM tests, debug/release assembly, instrumentation-test APK compilation, artifact checks, and Git diff checks.

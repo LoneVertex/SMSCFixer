@@ -8,7 +8,7 @@ This review examined the committed remediation branch relative to `main`, then a
 
 | Review topic | Result | Evidence |
 |---|---|---|
-| Hook eligibility | Pass | `SmscFixer` iterates declared methods but hooks only when `HookSignatureRegistry.match` returns an exact allowlisted signature. No `startsWith("send")` eligibility heuristic remains. |
+| Hook eligibility | Pass | `SmscGuard` iterates declared methods but hooks only when `HookSignatureRegistry.match` returns an exact allowlisted signature. No `startsWith("send")` eligibility heuristic remains. |
 | SMSC mutation | Pass | Mutation occurs only after `replacementAuthorized` is true and a non-null candidate is returned. Unknown and conflicting signals return a preserve decision. |
 | Target-package scope | Pass | Runtime rejects empty/null application scope outside mandatory `android`; normalization recovers invalid-only stored values to default targets. |
 | Default logging | Pass | No runtime output logs old/new SMSC values, destination content, carrier value, device fingerprint, or full raw exception text by default. |
@@ -21,7 +21,7 @@ This review examined the committed remediation branch relative to `main`, then a
 
 LSPosed documents a managed XSharedPreferences path for API 93+ modules with SDK >27. Enabling `xposedsharedprefs` allows module settings to request `MODE_WORLD_READABLE` through LSPosed’s managed preference storage; hooked processes continue to read by package and preference name rather than a hard-coded file path. The current candidate enables that metadata and requests the managed mode, falling back to a narrow single-file readability adjustment only when the manager rejects the mode. `ConfigurationRepository` now verifies `XSharedPreferences.getFile().canRead()` before consuming a snapshot and fails safely to defaults otherwise.
 
-The candidate does not yet claim universal compatibility. The metadata path, manager behavior, file readability, reload after save, and configuration propagation must be tested on the actual LSPosed API 93+ target as well as any retained legacy manager profile. The corresponding required device cases are D-09 and D-10, with an additional API-93 preference-mode case to be added to the validation package.
+The candidate does not yet claim universal compatibility. The metadata path, manager behavior, file readability, reload after save, and configuration propagation must be tested on the actual LSPosed API 93+ target as well as any retained legacy manager profile. The current validation matrix explicitly covers malformed-scope recovery (D-09), post-restart configuration loading (D-10), managed LSPosed preferences (D-11), and the narrow legacy fallback (D-12).
 
 ## Findings requiring follow-up
 
@@ -29,7 +29,7 @@ The candidate does not yet claim universal compatibility. The metadata path, man
 |---|---|---|---|
 | NS-01 | High | Device-dependent | Verify LSPosed managed preferences and the fallback across supported manager/API profiles; do not remove the compatibility fallback until the API 93+ path is demonstrated. |
 | NS-02 | High | Device-dependent | Execute every validation-matrix rooted-device case before production readiness. |
-| NS-03 | Medium | Open | Add instrumentation coverage for settings persistence and fallback mode behavior where Android test environment permits. |
+| NS-03 | Medium | Partially addressed | The instrumentation suite now asserts the settings controls, labels, initial status, and polite live region. Execute it on-device and validate manager-specific persistence and fallback behavior under D-10 through D-12. |
 | NS-04 | Medium | Open | Confirm cache behavior after SIM/subscription change; the current TTL bounds staleness but cannot detect change events proactively. |
 | NS-05 | Medium | Monitoring item | Android Gradle Plugin 8.4 warns that compile SDK 36 exceeds its tested range. Evaluate a plugin/Gradle upgrade separately from telephony behavior changes. |
 

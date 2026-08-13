@@ -1,10 +1,23 @@
-# Post-release validation cadence
+# Post-Release Validation Cadence
+
+## Preconditions
+
+Begin this cadence only after the signed artifact, its verified digest, a known-good rollback artifact, the completed rooted-device validation matrix, and rollback-rehearsal evidence are available. The current v2.0.0 review branch and pull request do not satisfy these deployment prerequisites.
 
 ## Staged checkpoints
-1. Internal stage: hook install + SMS send from each SIM + fallback decision verification.
-2. Limited stage: repeat on mixed OEM/API devices.
-3. Full stage: monitor hook/failure indicators for 24h before close.
+
+1. **Internal rooted-device stage:** Confirm hook installation, scope behavior, D-06/D-07 preserve-on-uncertainty evidence, and approved SIM-specific routing cases. Conduct controlled SMS delivery only after its separate authorization and only with an approved test SIM and destination.
+2. **Limited compatibility stage:** Repeat the applicable validation cases on mixed approved OEM/API/LSPosed profiles. Update the device compatibility registry with redacted outcomes before advancing.
+3. **Full approved stage:** Monitor redacted hook and failure indicators for 24 hours before closure. Do not expand the rollout while crash, scope, routing, configuration-readability, or preservation anomalies remain open.
 
 ## Pass/fail criteria
-- Pass: deterministic slot mapping, no sustained hook errors, rollback artifact available.
-- Fail: repeated ambiguous/failure events or SMS routing mismatch.
+
+| Result | Required condition |
+|---|---|
+| Pass | Deterministic verified-slot mapping, preserved original SMSC for unknown/conflicting evidence, no sustained hook errors, validated configuration readability, and a verified rollback artifact. |
+| Hold | Incomplete device-case evidence, unsigned artifact, missing rollback evidence, or a pending compatibility finding. |
+| Fail | Repeated ambiguous/failure events, unexpected package scope, configuration-readability regression, SMS routing mismatch, or failure to preserve the original SMSC. |
+
+## Evidence handling
+
+Record only the release tag, signed artifact digest, device/ROM/API/LSPosed versions, test-case ID, redacted decision event, operator, UTC time, and secured-evidence reference. Do not record SMS body, destination number, raw SMSC value, IMSI/ICCID, full carrier identifier, or full device fingerprint in repository or CI records.

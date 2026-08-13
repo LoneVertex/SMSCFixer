@@ -2,7 +2,7 @@
 
 ## Scope and branch
 
-The remediation program was implemented on branch `manus/smscfixer-remediation` from audited base commit `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43`. The changes are intentionally separated into reviewable commits. No pull request, remote branch push, release, deployment, signing action, or real-SMS operation was performed.
+The remediation program was implemented from audited base commit `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43` on the original local branch `manus/smscfixer-remediation`. The changes remain separated into reviewable commits and are now published for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). No release publication, controlled signing action, device installation, or real-SMS operation has been performed by this repository change set.
 
 | Commit | Purpose |
 |---|---|
@@ -13,12 +13,14 @@ The remediation program was implemented on branch `manus/smscfixer-remediation` 
 | `5d2d124` | Add test strategy and rooted-device validation matrix. |
 | `4ced569` | Pin CI actions and add unsigned-candidate release verification. |
 | `e51f711` | Align operations, monitoring, threat model, smoke test, and rollback gates. |
+| `b63101a` through `e85e643` | Introduce the SMSC Guard v2.0.0 public identity, package migration, icon, and migration evidence. |
+| `14181a7` | Redesign the native settings screen with the SMSC Guard dark-technical visual system and retained accessibility contracts. |
 
 ## Delivered controls
 
 | Audit risk | Delivered control | Verification |
 |---|---|---|
-| Invalid target configuration widened scope | Invalid-only configuration falls back to the validated default target set; empty runtime scope fails closed outside the mandatory `android` scope. | Expanded `SmscFixerConfigTest`; Gradle tests pass. |
+| Invalid target configuration widened scope | Invalid-only configuration falls back to the validated default target set; empty runtime scope fails closed outside the mandatory `android` scope. | Expanded `SmscGuardConfigTest`; Gradle tests pass. |
 | Heuristic send-method hooking | `HookSignatureRegistry` allowlists exact public SMSC-bearing signatures and rejects close/unknown variants. | `HookSignatureRegistryTest`; Gradle tests pass. |
 | Unsafe fallback under unknown/conflicting signals | `SmscSelector` authorizes replacement only for confident signals and otherwise preserves the original SMSC. | Updated `SmscSelectorTest`; validation cases D-04 through D-07. |
 | Raw/default log leakage | Centralized `DiagnosticLogger` emits redacted lifecycle events by default and gates detailed diagnostics. | Static safety-pattern scan found no legacy raw-SMSC output pattern in runtime source or scripts. |
@@ -37,7 +39,9 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \
 ./gradlew --no-daemon lint test assembleDebug assembleRelease
 ```
 
-The run completed with `BUILD SUCCESSFUL` and produced both `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release-unsigned.apk`. Workflow and deployment YAML passed `yamllint`; release helper and smoke scripts passed `bash -n`; `./scripts/verify_release_config.sh v1.0.0` passed; and a local unsigned candidate manifest was generated successfully.
+That historical remediation run completed with `BUILD SUCCESSFUL` and produced both `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release-unsigned.apk`. Workflow and deployment YAML passed `yamllint`; release helper and smoke scripts passed `bash -n`; `./scripts/verify_release_config.sh v1.0.0` passed; and a local unsigned candidate manifest was generated successfully.
+
+The current SMSC Guard v2.0.0 review head (`14181a73de2f688d3fd7f5e5fa3f2998e72402e6`) subsequently passed `clean lint test assembleDebug assembleRelease assembleDebugAndroidTest` with Java 17. The reproduced unsigned candidate is version `2.0.0` / `2000000` for `io.github.lonevertex.smscguard`; its candidate SHA-256 is recorded in the external signing handoff package and must be reverified by the controlled signing owner before use.
 
 The only build warning retained is that Android Gradle Plugin 8.4.0 reports compile SDK 36 as newer than the plugin’s tested compile SDK range. The project nevertheless built, linted, and tested successfully in the configured Java 17 / Android SDK 36 environment. Treat AGP/compile-SDK compatibility as a monitored upgrade item rather than suppressing the warning without validation.
 
