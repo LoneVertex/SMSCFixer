@@ -25,10 +25,10 @@ public class SmscFixerConfigTest {
     }
 
     @Test
-    public void shouldHandlePackageAllowsAndroidAndEmptyTargetList() {
-        assertTrue(SmscRuntimeConfig.shouldHandlePackage("android", new LinkedHashSet<>()));
-        assertTrue(SmscRuntimeConfig.shouldHandlePackage("com.any.app", new LinkedHashSet<>()));
-        assertTrue(SmscRuntimeConfig.shouldHandlePackage("com.any.app", null));
+    public void shouldHandlePackageAlwaysAllowsFrameworkButFailsClosedForEmptyTargets() {
+        assertTrue(SmscRuntimeConfig.shouldHandlePackage("android", new LinkedHashSet<String>()));
+        assertFalse(SmscRuntimeConfig.shouldHandlePackage("com.any.app", new LinkedHashSet<String>()));
+        assertFalse(SmscRuntimeConfig.shouldHandlePackage("com.any.app", null));
     }
 
     @Test
@@ -54,5 +54,30 @@ public class SmscFixerConfigTest {
         assertEquals("+fallback", SmscConfigSchema.normalizeSmscOrDefault("bad-smsc", "+fallback"));
         assertTrue(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one,com.good.two"));
         assertFalse(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one, bad package"));
+    }
+
+    @Test
+    public void invalidOnlyRuntimeTargetsRecoverToDefaultScope() {
+        Set<String> normalized = SmscConfigSchema.parseAndNormalizeTargetPackages("bad package,still bad");
+        assertEquals(
+                new LinkedHashSet<>(Arrays.asList(
+                        "com.google.android.apps.messaging",
+                        "com.android.mms"
+                )),
+                normalized
+        );
+        assertFalse(SmscConfigSchema.isTargetPackagesCsvAcceptable("bad package,still bad"));
+    }
+
+    @Test
+    public void emptyRuntimeTargetsRecoverToDefaultScope() {
+        Set<String> normalized = SmscConfigSchema.parseAndNormalizeTargetPackages("  ");
+        assertTrue(normalized.contains("com.google.android.apps.messaging"));
+        assertTrue(normalized.contains("com.android.mms"));
+    }
+
+    @Test
+    public void mixedValidAndInvalidTargetsAreRejectedByTheUi() {
+        assertFalse(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one,bad package"));
     }
 }

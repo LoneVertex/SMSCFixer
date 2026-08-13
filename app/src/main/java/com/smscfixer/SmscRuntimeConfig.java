@@ -36,24 +36,29 @@ final class SmscRuntimeConfig {
             Set<String> targetPackages,
             int configVersion
     ) {
+        Set<String> effectiveTargets = targetPackages == null || targetPackages.isEmpty()
+                ? SmscConfigSchema.parseAndNormalizeTargetPackages(SmscConfigSchema.DEFAULT_TARGET_PACKAGES_CSV)
+                : new LinkedHashSet<>(targetPackages);
         return new SmscSelectionConfig(
                 configVersion,
                 primarySmsc,
                 secondarySmsc,
                 defaultMccMncFallbacks(primarySmsc, secondarySmsc),
                 defaultCarrierNameFallbacks(primarySmsc, secondarySmsc),
-                targetPackages
+                effectiveTargets
         );
     }
 
+    /**
+     * The Android framework process is always a required LSPosed scope. An empty/invalid target
+     * set must fail closed for other packages; it must never mean "intercept everything".
+     */
     static boolean shouldHandlePackage(String packageName, Set<String> targetPackages) {
         if ("android".equals(packageName)) {
             return true;
         }
-        if (targetPackages == null || targetPackages.isEmpty()) {
-            return true;
-        }
-        return targetPackages.contains(packageName);
+        return targetPackages != null && !targetPackages.isEmpty()
+                && targetPackages.contains(packageName);
     }
 
     static Set<String> parsePackages(String csv) {

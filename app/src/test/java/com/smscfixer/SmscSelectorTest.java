@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class SmscSelectorTest {
     private static final String PRIMARY = "+20105996500";
@@ -33,7 +36,10 @@ public class SmscSelectorTest {
 
     @Test
     public void selectsSecondaryForSecondarySlot() {
-        assertEquals(SECONDARY, SmscSelector.selectSmsc(1, "", "", config()));
+        SmscSelector.SelectionResult result = SmscSelector.selectSmscDetailed(1, "", "", config());
+        assertTrue(result.replacementAuthorized);
+        assertEquals(SmscSelector.DecisionReason.SLOT_SECONDARY, result.reason);
+        assertEquals(SECONDARY, result.smsc);
     }
 
     @Test
@@ -43,7 +49,10 @@ public class SmscSelectorTest {
 
     @Test
     public void fallsBackUsingMccMncWhenSlotUnknown() {
-        assertEquals(SECONDARY, SmscSelector.selectSmsc(-1, "60201", "", config()));
+        SmscSelector.SelectionResult result = SmscSelector.selectSmscDetailed(-1, "60201", "", config());
+        assertTrue(result.replacementAuthorized);
+        assertEquals(SmscSelector.DecisionReason.MCCMNC_FALLBACK, result.reason);
+        assertEquals(SECONDARY, result.smsc);
     }
 
     @Test
@@ -52,22 +61,31 @@ public class SmscSelectorTest {
     }
 
     @Test
-    public void fallsBackToPrimaryWhenNoSignals() {
-        assertEquals(PRIMARY, SmscSelector.selectSmsc(-1, "", "", config()));
+    public void preservesOriginalWhenNoSignalsAreAvailable() {
+        SmscSelector.SelectionResult result = SmscSelector.selectSmscDetailed(-1, "", "", config());
+        assertFalse(result.replacementAuthorized);
+        assertEquals(SmscSelector.DecisionReason.UNKNOWN_ROUTING_SIGNALS, result.reason);
+        assertNull(result.smsc);
     }
 
     @Test
-    public void normalizesMccMncAndCarrierValues() {
+    public void normalizesOnlyValidMccMncAndCarrierValues() {
         assertEquals("60201", SmscSelector.normalizeMccMnc(" 602-01 "));
+        assertEquals("", SmscSelector.normalizeMccMnc("60201x"));
+        assertEquals("", SmscSelector.normalizeMccMnc("6020"));
         assertEquals("orange egypt", SmscSelector.normalizeCarrierName(" Orange   Egypt "));
     }
 
     @Test
-    public void ambiguousSignalsReturnPrimarySafeFallback() {
-        assertEquals(
-                SmscSelector.DecisionReason.AMBIGUOUS_CARRIER_SIGNALS,
-                SmscSelector.selectSmscDetailed(-1, "60201", "Vodafone Egypt", config()).reason
+    public void ambiguousSignalsPreserveOriginalAddress() {
+        SmscSelector.SelectionResult result = SmscSelector.selectSmscDetailed(
+                -1,
+                "60201",
+                "Vodafone Egypt",
+                config()
         );
-        assertEquals(PRIMARY, SmscSelector.selectSmsc(-1, "60201", "Vodafone Egypt", config()));
+        assertFalse(result.replacementAuthorized);
+        assertEquals(SmscSelector.DecisionReason.AMBIGUOUS_CARRIER_SIGNALS, result.reason);
+        assertNull(result.smsc);
     }
 }

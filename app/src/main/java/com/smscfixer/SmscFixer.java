@@ -5,7 +5,6 @@ import android.os.Build;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +17,10 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
+/**
+ * LSPosed entry point. This class only orchestrates configuration loading, explicit hook
+ * installation, routing-signal lookup, and application of a pure routing decision.
+ */
 public class SmscFixer implements IXposedHookLoadPackage {
     private static final String TAG = "SmscFixer";
     public static final String DEFAULT_SMSC_PRIMARY = "+20105996500"; // Vodafone Egypt
@@ -29,15 +32,13 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static final int SECONDARY_SLOT_INDEX = 1;
     private static final int INVALID_SUBSCRIPTION_ID = -1;
     private static final int INVALID_SLOT_INDEX = -1;
-    // send* signatures use index 0=destination and index 1=scAddress; subId scanning starts after these.
-    private static final int SUBSCRIPTION_ARG_SCAN_START_INDEX = 2;
     private static final long FALLBACK_LOG_THROTTLE_MS = 30_000L;
     private static final long REFLECTION_LOG_THROTTLE_MS = 120_000L;
+    private static final int MAX_THROTTLED_LOG_KEYS = 64;
 
     private static final String EVT_HOOK_APPLIED = "hook_applied";
     private static final String EVT_PACKAGE_SKIPPED = "package_skipped";
-    private static final String EVT_FALLBACK_USED = "fallback_used";
-    private static final String EVT_AMBIGUOUS_SIGNALS = "ambiguous_signals";
+    private static final String EVT_REPLACEMENT_PRESERVED = "replacement_preserved";
     private static final String EVT_CONFIG_LOADED = "config_loaded";
     private static final String EVT_CONFIG_LOAD_FAILED = "config_load_failed";
     private static final String EVT_REFLECTION_FAILURE = "reflection_failure";
@@ -63,12 +64,13 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static final XC_MethodHook FORCE_SMSC_HOOK = new XC_MethodHook() {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) {
-            if (param.args == null || param.args.length < 2) {
+            HookSignatureRegistry.HookSignature signature = signatureFor(param);
+            if (signature == null || param.args == null || param.args.length <= signature.smscArgumentIndex) {
                 return;
             }
 
-            int subId = resolveSubscriptionId(param);
-            int slotIndex = resolveSlotIndex(subId, param);
+            int subId = resolveSubscriptionId(param.thisObject);
+            int slotIndex = resolveSlotIndex(subId, param.thisObject);
             CarrierInfo carrierInfo = resolveCarrierInfo(subId);
             SmscSelector.SelectionResult selection = SmscSelector.selectSmscDetailed(
                     slotIndex,
@@ -77,24 +79,18 @@ public class SmscFixer implements IXposedHookLoadPackage {
                     runtimeConfig
             );
 
-            Object original = param.args[1];
+            if (!selection.replacementAuthorized || selection.smsc == null) {
+                maybeLogPreservedDecision(selection.reason);
+                return;
+            }
+
+            Object original = param.args[signature.smscArgumentIndex];
             if (selection.smsc.equals(original)) {
                 return;
             }
 
-            param.args[1] = selection.smsc;
-            XposedBridge.log(TAG + ": " + param.method.getName() + " scAddress="
-                    + (original == null ? "null" : String.valueOf(original))
-                    + " -> " + selection.smsc);
-
-            if (romDiagnosticsEnabled) {
-                XposedBridge.log(TAG + ": diag hook signature=" + param.method
-                        + " carrier=" + carrierInfo.carrierName
-                        + " mccmnc=" + carrierInfo.mccMnc
-                        + " slotIndex=" + slotIndex
-                        + " decision=" + selection.reason);
-            }
-            maybeLogFallback(slotIndex, carrierInfo, selection);
+            param.args[signature.smscArgumentIndex] = selection.smsc;
+            logDiagnosticEvent("smsc_replaced", "reason=" + selection.reason);
         }
     };
 
@@ -111,9 +107,7 @@ public class SmscFixer implements IXposedHookLoadPackage {
                 romDiagnosticsEnabled = romDiagnosticsAutoEnabled;
                 romDiagnosticsInitialized = true;
                 if (romDiagnosticsAutoEnabled) {
-                    XposedBridge.log(TAG + ": ROM diagnostics enabled for model="
-                            + Build.MODEL + " device=" + Build.DEVICE
-                            + " display=" + Build.DISPLAY);
+                    XposedBridge.log(TAG + ": event=rom_diagnostics_enabled");
                 }
             }
         }
@@ -122,26 +116,21 @@ public class SmscFixer implements IXposedHookLoadPackage {
         try {
             runtimeConfig = loadRuntimeConfig();
             if (!SmscRuntimeConfig.shouldHandlePackage(lpparam.packageName, runtimeConfig.targetPackages)) {
-                logDiagnosticEvent(EVT_PACKAGE_SKIPPED, "package=" + lpparam.packageName + " not in target list");
+                logDiagnosticEvent(EVT_PACKAGE_SKIPPED, "scope=not_targeted");
                 return;
             }
 
             final Class<?> smsManagerClass;
             try {
                 smsManagerClass = XposedHelpers.findClass("android.telephony.SmsManager", lpparam.classLoader);
-            } catch (Throwable e) {
-                XposedBridge.log(TAG + ": SmsManager not found: " + e);
+            } catch (Throwable error) {
+                XposedBridge.log(TAG + ": event=sms_manager_unavailable");
                 return;
             }
 
-            if (romDiagnosticsEnabled) {
-                XposedBridge.log(TAG + ": analyzing package=" + lpparam.packageName
-                        + " process=" + lpparam.processName);
-            }
-
-            hookedSuccessfully = hookCompatibleSendMethods(smsManagerClass, romDiagnosticsEnabled) > 0;
+            hookedSuccessfully = hookCompatibleSendMethods(smsManagerClass) > 0;
             if (hookedSuccessfully) {
-                logDiagnosticEvent(EVT_HOOK_APPLIED, "package=" + lpparam.packageName);
+                XposedBridge.log(TAG + ": event=" + EVT_HOOK_APPLIED);
             }
         } finally {
             synchronized (HOOK_LOCK) {
@@ -153,6 +142,13 @@ public class SmscFixer implements IXposedHookLoadPackage {
         }
     }
 
+    private static HookSignatureRegistry.HookSignature signatureFor(XC_MethodHook.MethodHookParam param) {
+        if (param == null || !(param.method instanceof Method)) {
+            return null;
+        }
+        return HookSignatureRegistry.match((Method) param.method);
+    }
+
     private static String buildHookScopeKey(XC_LoadPackage.LoadPackageParam lpparam) {
         String process = lpparam.processName == null ? "" : lpparam.processName;
         String pkg = lpparam.packageName == null ? "" : lpparam.packageName;
@@ -160,31 +156,28 @@ public class SmscFixer implements IXposedHookLoadPackage {
         return process + "|" + pkg + "|" + classLoaderId;
     }
 
-    private static int hookCompatibleSendMethods(Class<?> clazz, boolean diagnosticsEnabled) {
+    private static int hookCompatibleSendMethods(Class<?> clazz) {
         int hookedCount = 0;
         Set<String> seenSignatures = new HashSet<>();
         for (Method method : clazz.getDeclaredMethods()) {
-            if (!isCompatibleSmsSendMethod(method)) {
-                if (diagnosticsEnabled && method.getName().startsWith("send")) {
-                    XposedBridge.log(TAG + ": diag skipped incompatible method " + method);
-                }
+            HookSignatureRegistry.HookSignature signature = HookSignatureRegistry.match(method);
+            if (signature == null) {
                 continue;
             }
-            String signature = method.toString();
-            if (!seenSignatures.add(signature)) {
+            String diagnosticName = signature.diagnosticName();
+            if (!seenSignatures.add(diagnosticName)) {
                 continue;
             }
             try {
                 XposedBridge.hookMethod(method, FORCE_SMSC_HOOK);
                 hookedCount++;
-                if (diagnosticsEnabled) {
-                    XposedBridge.log(TAG + ": hooked " + method.getName() + " " + signature);
-                }
-            } catch (Throwable t) {
-                XposedBridge.log(TAG + ": hook error in " + method.getName() + ": " + t);
+                logDiagnosticEvent("hook_installed", "signature=" + diagnosticName);
+            } catch (Throwable error) {
+                XposedBridge.log(TAG + ": event=hook_install_failed");
+                maybeLogReflectionFailure("hook:" + signature.methodName, error);
             }
         }
-        XposedBridge.log(TAG + ": compatible methods hooked=" + hookedCount);
+        XposedBridge.log(TAG + ": event=hook_summary count=" + hookedCount);
         return hookedCount;
     }
 
@@ -200,107 +193,17 @@ public class SmscFixer implements IXposedHookLoadPackage {
         return false;
     }
 
-    private static boolean isCompatibleSmsSendMethod(Method method) {
-        if (!method.getName().startsWith("send")) {
-            return false;
-        }
-        if (method.getReturnType() != Void.TYPE) {
-            return false;
-        }
-        Class<?>[] params = method.getParameterTypes();
-        return params.length >= 2
-                && params[0] == String.class
-                && params[1] == String.class;
-    }
-
-    private static int resolveSubscriptionId(XC_MethodHook.MethodHookParam param) {
-        Integer fromSmsManager = tryReadIntMethod(param.thisObject, "getSubscriptionId");
+    private static int resolveSubscriptionId(Object smsManager) {
+        Integer fromSmsManager = tryReadIntMethod(smsManager, "getSubscriptionId");
         if (isValidSubscriptionId(fromSmsManager)) {
             return fromSmsManager;
         }
-        Integer legacySubId = tryReadIntMethod(param.thisObject, "getSubId");
+        Integer legacySubId = tryReadIntMethod(smsManager, "getSubId");
         if (isValidSubscriptionId(legacySubId)) {
             return legacySubId;
         }
-        Integer fieldSubId = tryReadIntField(param.thisObject, "mSubId");
-        if (isValidSubscriptionId(fieldSubId)) {
-            return fieldSubId;
-        }
-        Integer fromArgs = scanArgsForSubscriptionId(param);
-        if (isValidSubscriptionId(fromArgs)) {
-            return fromArgs;
-        }
-        return INVALID_SUBSCRIPTION_ID;
-    }
-
-    private static Integer scanArgsForSubscriptionId(XC_MethodHook.MethodHookParam param) {
-        if (param == null || param.args == null || !(param.method instanceof Method)) {
-            return null;
-        }
-
-        Method method = (Method) param.method;
-        if (!isCompatibleSmsSendMethod(method)) {
-            return null;
-        }
-
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        int max = Math.min(param.args.length, parameterTypes.length);
-        for (int i = SUBSCRIPTION_ARG_SCAN_START_INDEX; i < max; i++) {
-            Object arg = param.args[i];
-            Class<?> type = parameterTypes[i];
-            if (type != Integer.TYPE || !(arg instanceof Integer)) {
-                continue;
-            }
-            Integer value = (Integer) arg;
-            if (isLikelySubscriptionId(value) && isActiveSubscriptionId(value)) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    private static boolean isLikelySubscriptionId(Integer value) {
-        if (!isValidSubscriptionId(value)) {
-            return false;
-        }
-        if (isValidSlot(resolveSlotFromSubscriptionManager(value))) {
-            return true;
-        }
-        Integer defaultSmsSubId = resolveDefaultSmsSubscriptionId();
-        return defaultSmsSubId != null && defaultSmsSubId.equals(value);
-    }
-
-    private static boolean isActiveSubscriptionId(Integer subId) {
-        if (!isValidSubscriptionId(subId)) {
-            return false;
-        }
-        try {
-            Object application = getCurrentApplication();
-            if (application == null) {
-                return false;
-            }
-            Object manager = XposedHelpers.callMethod(application, "getSystemService", "telephony_subscription_service");
-            if (manager == null) {
-                return false;
-            }
-            Object infos = XposedHelpers.callMethod(manager, "getActiveSubscriptionInfoList");
-            if (!(infos instanceof List)) {
-                return false;
-            }
-            List<?> list = (List<?>) infos;
-            for (Object info : list) {
-                if (info == null) {
-                    continue;
-                }
-                Object id = XposedHelpers.callMethod(info, "getSubscriptionId");
-                if (id instanceof Integer && subId.equals(id)) {
-                    return true;
-                }
-            }
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("isActiveSubscriptionId", t);
-        }
-        return false;
+        Integer fieldSubId = tryReadIntField(smsManager, "mSubId");
+        return isValidSubscriptionId(fieldSubId) ? fieldSubId : INVALID_SUBSCRIPTION_ID;
     }
 
     private static boolean isValidSubscriptionId(Integer value) {
@@ -317,8 +220,8 @@ public class SmscFixer implements IXposedHookLoadPackage {
                 int result = (Integer) value;
                 return result >= 0 ? result : null;
             }
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("tryReadIntMethod:" + methodName, t);
+        } catch (Throwable error) {
+            maybeLogReflectionFailure("read_method:" + methodName, error);
         }
         return null;
     }
@@ -333,38 +236,32 @@ public class SmscFixer implements IXposedHookLoadPackage {
                 int result = (Integer) value;
                 return result >= 0 ? result : null;
             }
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("tryReadIntField:" + fieldName, t);
+        } catch (Throwable error) {
+            maybeLogReflectionFailure("read_field:" + fieldName, error);
         }
         return null;
     }
 
-    private static int resolveSlotIndex(int subId, XC_MethodHook.MethodHookParam param) {
+    private static int resolveSlotIndex(int subId, Object smsManager) {
         if (subId != INVALID_SUBSCRIPTION_ID) {
             Integer slotFromSubManager = resolveSlotFromSubscriptionManager(subId);
             if (isValidSlot(slotFromSubManager)) {
                 return slotFromSubManager;
             }
         }
-        Integer slotFromSmsManager = tryReadIntMethod(param.thisObject, "getSlotIndex");
+        Integer slotFromSmsManager = tryReadIntMethod(smsManager, "getSlotIndex");
         if (isValidSlot(slotFromSmsManager)) {
             return slotFromSmsManager;
         }
-        Integer slotFromSimSlot = tryReadIntMethod(param.thisObject, "getSimSlotIndex");
+        Integer slotFromSimSlot = tryReadIntMethod(smsManager, "getSimSlotIndex");
         if (isValidSlot(slotFromSimSlot)) {
             return slotFromSimSlot;
         }
-        Integer slotField = tryReadIntField(param.thisObject, "mSlotIndex");
-        if (isValidSlot(slotField)) {
-            return slotField;
-        }
-        return INVALID_SLOT_INDEX;
+        Integer slotField = tryReadIntField(smsManager, "mSlotIndex");
+        return isValidSlot(slotField) ? slotField : INVALID_SLOT_INDEX;
     }
 
     private static Integer resolveSlotFromSubscriptionManager(int subId) {
-        if (subId < 0) {
-            return null;
-        }
         Integer viaGetSlotIndex = callSubscriptionSlotMethod("getSlotIndex", subId);
         if (isValidSlot(viaGetSlotIndex)) {
             return viaGetSlotIndex;
@@ -374,10 +271,7 @@ public class SmscFixer implements IXposedHookLoadPackage {
             return viaGetPhoneId;
         }
         Integer viaGetSlotId = callSubscriptionSlotMethod("getSlotId", subId);
-        if (isValidSlot(viaGetSlotId)) {
-            return viaGetSlotId;
-        }
-        return null;
+        return isValidSlot(viaGetSlotId) ? viaGetSlotId : null;
     }
 
     private static Integer callSubscriptionSlotMethod(String methodName, int subId) {
@@ -388,22 +282,8 @@ public class SmscFixer implements IXposedHookLoadPackage {
                 int slot = (Integer) result;
                 return slot >= 0 ? slot : null;
             }
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("callSubscriptionSlotMethod:" + methodName, t);
-        }
-        return null;
-    }
-
-    private static Integer resolveDefaultSmsSubscriptionId() {
-        try {
-            Class<?> subscriptionManager = Class.forName("android.telephony.SubscriptionManager");
-            Object result = XposedHelpers.callStaticMethod(subscriptionManager, "getDefaultSmsSubscriptionId");
-            if (result instanceof Integer) {
-                int subId = (Integer) result;
-                return subId >= 0 ? subId : null;
-            }
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("resolveDefaultSmsSubscriptionId", t);
+        } catch (Throwable error) {
+            maybeLogReflectionFailure("subscription_slot:" + methodName, error);
         }
         return null;
     }
@@ -415,45 +295,45 @@ public class SmscFixer implements IXposedHookLoadPackage {
     private static CarrierInfo resolveCarrierInfo(int subId) {
         String carrierName = "";
         String mccMnc = "";
-
         Object application = getCurrentApplication();
-        if (application != null) {
-            try {
-                Object telephony = XposedHelpers.callMethod(application, "getSystemService", "phone");
-                if (telephony != null) {
-                    Object scopedTelephony = telephony;
-                    if (subId >= 0) {
-                        try {
-                            Object candidate = XposedHelpers.callMethod(telephony, "createForSubscriptionId", subId);
-                            if (candidate != null) {
-                                scopedTelephony = candidate;
-                            }
-                        } catch (Throwable t) {
-                            maybeLogReflectionFailure("resolveCarrierInfo:createForSubscriptionId", t);
-                        }
-                    }
-                    try {
-                        Object resultName = XposedHelpers.callMethod(scopedTelephony, "getSimOperatorName");
-                        if (resultName instanceof String) {
-                            carrierName = (String) resultName;
-                        }
-                    } catch (Throwable t) {
-                        maybeLogReflectionFailure("resolveCarrierInfo:getSimOperatorName", t);
-                    }
-                    try {
-                        Object resultMccMnc = XposedHelpers.callMethod(scopedTelephony, "getSimOperator");
-                        if (resultMccMnc instanceof String) {
-                            mccMnc = (String) resultMccMnc;
-                        }
-                    } catch (Throwable t) {
-                        maybeLogReflectionFailure("resolveCarrierInfo:getSimOperator", t);
-                    }
-                }
-            } catch (Throwable t) {
-                maybeLogReflectionFailure("resolveCarrierInfo:getSystemService", t);
-            }
+        if (application == null) {
+            return new CarrierInfo(carrierName, mccMnc);
         }
-
+        try {
+            Object telephony = XposedHelpers.callMethod(application, "getSystemService", "phone");
+            if (telephony == null) {
+                return new CarrierInfo(carrierName, mccMnc);
+            }
+            Object scopedTelephony = telephony;
+            if (subId >= 0) {
+                try {
+                    Object candidate = XposedHelpers.callMethod(telephony, "createForSubscriptionId", subId);
+                    if (candidate != null) {
+                        scopedTelephony = candidate;
+                    }
+                } catch (Throwable error) {
+                    maybeLogReflectionFailure("carrier:create_for_subscription", error);
+                }
+            }
+            try {
+                Object resultName = XposedHelpers.callMethod(scopedTelephony, "getSimOperatorName");
+                if (resultName instanceof String) {
+                    carrierName = (String) resultName;
+                }
+            } catch (Throwable error) {
+                maybeLogReflectionFailure("carrier:get_name", error);
+            }
+            try {
+                Object resultMccMnc = XposedHelpers.callMethod(scopedTelephony, "getSimOperator");
+                if (resultMccMnc instanceof String) {
+                    mccMnc = (String) resultMccMnc;
+                }
+            } catch (Throwable error) {
+                maybeLogReflectionFailure("carrier:get_operator", error);
+            }
+        } catch (Throwable error) {
+            maybeLogReflectionFailure("carrier:get_service", error);
+        }
         return new CarrierInfo(carrierName, mccMnc);
     }
 
@@ -461,34 +341,16 @@ public class SmscFixer implements IXposedHookLoadPackage {
         try {
             Class<?> activityThread = Class.forName("android.app.ActivityThread");
             return XposedHelpers.callStaticMethod(activityThread, "currentApplication");
-        } catch (Throwable t) {
-            maybeLogReflectionFailure("getCurrentApplication", t);
+        } catch (Throwable error) {
+            maybeLogReflectionFailure("current_application", error);
             return null;
         }
     }
 
-    private static void maybeLogFallback(
-            int slotIndex,
-            CarrierInfo carrierInfo,
-            SmscSelector.SelectionResult selection
-    ) {
-        if (slotIndex != INVALID_SLOT_INDEX && selection.reason != SmscSelector.DecisionReason.AMBIGUOUS_CARRIER_SIGNALS) {
-            return;
-        }
-        String key = "fallback:" + SmscSelector.normalizeMccMnc(carrierInfo.mccMnc)
-                + ":" + SmscSelector.normalizeCarrierName(carrierInfo.carrierName)
-                + ":" + selection.smsc
-                + ":" + selection.reason;
+    private static void maybeLogPreservedDecision(SmscSelector.DecisionReason reason) {
+        String key = "preserve:" + reason;
         if (shouldLogThrottled(key, FALLBACK_LOG_THROTTLE_MS)) {
-            String message = "selected SMSC=" + selection.smsc
-                    + " decision=" + selection.reason
-                    + " carrier=" + carrierInfo.carrierName
-                    + " mccmnc=" + carrierInfo.mccMnc;
-            if (selection.reason == SmscSelector.DecisionReason.AMBIGUOUS_CARRIER_SIGNALS) {
-                logDiagnosticEvent(EVT_AMBIGUOUS_SIGNALS, message);
-            } else {
-                logDiagnosticEvent(EVT_FALLBACK_USED, message);
-            }
+            logDiagnosticEvent(EVT_REPLACEMENT_PRESERVED, "reason=" + reason);
         }
     }
 
@@ -496,8 +358,11 @@ public class SmscFixer implements IXposedHookLoadPackage {
         long now = System.currentTimeMillis();
         synchronized (THROTTLED_LOGS) {
             Long last = THROTTLED_LOGS.get(key);
-            if (last != null && (now - last) < throttleMs) {
+            if (last != null && now - last < throttleMs) {
                 return false;
+            }
+            if (!THROTTLED_LOGS.containsKey(key) && THROTTLED_LOGS.size() >= MAX_THROTTLED_LOG_KEYS) {
+                THROTTLED_LOGS.clear();
             }
             THROTTLED_LOGS.put(key, now);
             return true;
@@ -505,16 +370,14 @@ public class SmscFixer implements IXposedHookLoadPackage {
     }
 
     private static void maybeLogReflectionFailure(String operation, Throwable throwable) {
-        String key = "refl:" + operation + ":" + throwable.getClass().getName();
+        String key = "reflection:" + operation + ":" + throwable.getClass().getName();
         if (shouldLogThrottled(key, REFLECTION_LOG_THROTTLE_MS)) {
-            logDiagnosticEvent(EVT_REFLECTION_FAILURE, operation + " failed: " + throwable);
+            logDiagnosticEvent(EVT_REFLECTION_FAILURE, "operation=" + operation);
         }
     }
 
     private static void logDiagnosticEvent(String eventName, String message) {
-        if (!romDiagnosticsEnabled
-                && !EVT_CONFIG_LOAD_FAILED.equals(eventName)
-                && !EVT_REFLECTION_FAILURE.equals(eventName)) {
+        if (!romDiagnosticsEnabled && !EVT_CONFIG_LOAD_FAILED.equals(eventName)) {
             return;
         }
         XposedBridge.log(TAG + ": event=" + eventName + " " + message);
@@ -533,25 +396,25 @@ public class SmscFixer implements IXposedHookLoadPackage {
                     prefs.getString(SmscConfigSchema.KEY_SECONDARY_SMSC, DEFAULT_SMSC_SECONDARY),
                     DEFAULT_SMSC_SECONDARY
             );
-            String targetPackagesCsv = prefs.getString(
-                    SmscConfigSchema.KEY_TARGET_PACKAGES_CSV,
-                    SmscConfigSchema.DEFAULT_TARGET_PACKAGES_CSV
+            Set<String> targets = SmscConfigSchema.parseAndNormalizeTargetPackages(
+                    prefs.getString(
+                            SmscConfigSchema.KEY_TARGET_PACKAGES_CSV,
+                            SmscConfigSchema.DEFAULT_TARGET_PACKAGES_CSV
+                    )
             );
             boolean diagnosticsSetting = prefs.getBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, false);
             romDiagnosticsEnabled = romDiagnosticsAutoEnabled || diagnosticsSetting;
             SmscSelectionConfig config = SmscRuntimeConfig.buildConfig(
                     primary,
                     secondary,
-                    SmscConfigSchema.parseAndNormalizeTargetPackages(targetPackagesCsv),
+                    targets,
                     schemaVersion
             );
-            logDiagnosticEvent(EVT_CONFIG_LOADED,
-                    "schemaVersion=" + config.configVersion + " targets=" + config.targetPackages.size());
+            logDiagnosticEvent(EVT_CONFIG_LOADED, "target_count=" + config.targetPackages.size());
             return config;
-        } catch (Throwable t) {
-            XposedBridge.log(TAG + ": config load failed, using defaults: " + t);
+        } catch (Throwable error) {
+            XposedBridge.log(TAG + ": event=" + EVT_CONFIG_LOAD_FAILED);
             romDiagnosticsEnabled = romDiagnosticsAutoEnabled;
-            logDiagnosticEvent(EVT_CONFIG_LOAD_FAILED, t.toString());
             return buildDefaultConfig();
         }
     }

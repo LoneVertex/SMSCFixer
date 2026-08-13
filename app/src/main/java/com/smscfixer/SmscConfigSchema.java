@@ -24,30 +24,29 @@ final class SmscConfigSchema {
             return fallback;
         }
         String trimmed = raw.trim();
-        if (trimmed.isEmpty()) {
-            return fallback;
-        }
-        if (!isSmscFormatValid(trimmed)) {
+        if (trimmed.isEmpty() || !isSmscFormatValid(trimmed)) {
             return fallback;
         }
         return trimmed.startsWith("+") ? trimmed : "+" + trimmed;
     }
 
     static boolean isSmscInputAcceptable(String raw) {
-        if (raw == null || raw.trim().isEmpty()) {
-            return true;
-        }
-        return isSmscFormatValid(raw.trim());
+        return raw == null || raw.trim().isEmpty() || isSmscFormatValid(raw.trim());
     }
 
     static boolean isSmscFormatValid(String value) {
         return value != null && SMSC_PATTERN.matcher(value).matches();
     }
 
+    /**
+     * Produces a non-empty, validated scope for runtime use. Values supplied by an external or
+     * manually edited preference file are treated as untrusted; invalid-only values fall back to
+     * the known-safe default scope rather than enabling all packages.
+     */
     static Set<String> parseAndNormalizeTargetPackages(String csv) {
         Set<String> parsed = SmscRuntimeConfig.parsePackages(csv);
         if (parsed.isEmpty()) {
-            return SmscRuntimeConfig.parsePackages(DEFAULT_TARGET_PACKAGES_CSV);
+            return defaultTargetPackages();
         }
         Set<String> valid = new LinkedHashSet<>();
         for (String pkg : parsed) {
@@ -55,9 +54,13 @@ final class SmscConfigSchema {
                 valid.add(pkg);
             }
         }
-        return valid;
+        return valid.isEmpty() ? defaultTargetPackages() : valid;
     }
 
+    /**
+     * UI validation is stricter than runtime recovery: any invalid non-empty package entry must
+     * be corrected by the user instead of being silently dropped.
+     */
     static boolean isTargetPackagesCsvAcceptable(String csv) {
         if (csv == null || csv.trim().isEmpty()) {
             return true;
@@ -75,8 +78,11 @@ final class SmscConfigSchema {
     }
 
     static String normalizeTargetPackagesCsv(String csv) {
-        Set<String> normalized = parseAndNormalizeTargetPackages(csv);
-        return String.join(",", normalized);
+        return String.join(",", parseAndNormalizeTargetPackages(csv));
+    }
+
+    private static Set<String> defaultTargetPackages() {
+        return new LinkedHashSet<>(SmscRuntimeConfig.parsePackages(DEFAULT_TARGET_PACKAGES_CSV));
     }
 
     private static boolean isValidPackageName(String pkg) {
