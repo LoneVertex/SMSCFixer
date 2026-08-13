@@ -1,103 +1,57 @@
 # SmscFixer (LSPosed Module)
 
-This repository now contains a build-ready Android Studio LSPosed/Xposed module that forces SMSC by SIM slot for compatible `SmsManager` send paths:
+SmscFixer is an Android LSPosed module that applies a configured SMSC only to an explicit allowlist of compatible public `SmsManager` send-method signatures. It uses slot-first routing, then validated MCC/MNC or carrier fallbacks. If the routing signal is unknown or contradictory, it **preserves the original SMSC** rather than forcing a primary fallback.
 
-- SIM1 / primary slot: Vodafone Egypt `+20105996500`
-- SIM2 / secondary slot: Orange Egypt `+20122000020`
+The default configuration is intended for a controlled Egyptian dual-SIM setup:
 
-It includes dynamic hook discovery to improve compatibility across vendor/custom Android builds (including newer Android API variants).
+| Routing evidence | Default SMSC |
+|---|---|
+| SIM1 / slot 0 / Vodafone Egypt | `+20105996500` |
+| SIM2 / slot 1 / Orange Egypt | `+20122000020` |
 
-## Project files
-
-- `app/src/main/java/com/smscfixer/SmscFixer.java`
-- `app/src/main/AndroidManifest.xml`
-- `app/src/main/assets/xposed_init`
-- `app/build.gradle`
-- `build.gradle`
-- `settings.gradle`
+The defaults are configurable in the settings activity. Invalid target-package configuration never expands the module to arbitrary applications; it recovers to the validated default target scope.
 
 ## Build
 
-1. Open the project root in Android Studio.
-2. Sync Gradle.
-3. Build debug APK:
-   - `./gradlew assembleDebug`
-4. Optional production artifact build (unsigned unless release signing is configured in your environment):
-   - `./gradlew assembleRelease`
+Use Java 17 and an Android SDK that provides platform API 36. The repository has been validated with the following quality gate:
 
-APK output:
-- `app/build/outputs/apk/debug/app-debug.apk`
-- `app/build/outputs/apk/release/app-release-unsigned.apk`
+```bash
+./gradlew --no-daemon lint test assembleDebug assembleRelease
+```
 
-## Production readiness
+The output paths are `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release-unsigned.apk`. The release APK is an **unsigned candidate**, not a production artifact. The release workflow creates an unsigned candidate manifest and SHA-256; a controlled external signing step must verify, sign, and record the final deployable APK identity.
 
-Production controls and runbooks are available at:
+## Install and scope
 
-- Deployment config: `deploy/production.config.yml`
-- Secrets template: `deploy/.env.production.example`
-- Migration policy: `docs/production/migrations.md`
-- Monitoring and alerts: `docs/production/monitoring-alerts.md`
-- Rollback plan: `docs/production/rollback.md`
-- Prod-like smoke test: `scripts/smoke_test_prod_like.sh`
-- PR portfolio audit: `docs/audit/pr-portfolio-deep-audit.md`
-- Security docs: `docs/security/`
-- Operations docs: `docs/operations/`
+Install a controlled debug/test APK with `adb install -r app/build/outputs/apk/debug/app-debug.apk`. In LSPosed Manager, enable **SmscFixer**, scope it at least to `android` and the intended messaging package, then reboot or restart scoped processes. The default package targets are `com.google.android.apps.messaging` and `com.android.mms` when present.
 
-## Install and enable
+> Do not infer successful routing from a green build alone. Hook compatibility and carrier delivery require the rooted-device and controlled delivery evidence defined in the validation matrix.
 
-1. Install APK: `adb install -r app/build/outputs/apk/debug/app-debug.apk`
-2. In LSPosed Manager, enable module **SmscFixer**.
-3. Set scope at least for:
-   - `android` (System Framework)
-   - `com.google.android.apps.messaging`
-   - `com.android.mms` (if present)
-4. Reboot device.
+## Verification and diagnostics
 
-## Verify
+Run the redacted smoke script separately for each expected routing case. For example:
 
-Send an SMS and check logs:
+```bash
+TEST_CASE_ID=D-02 EXPECTED_DECISION=SLOT_PRIMARY ./scripts/smoke_test_prod_like.sh
+TEST_CASE_ID=D-03 EXPECTED_DECISION=SLOT_SECONDARY ./scripts/smoke_test_prod_like.sh
+```
 
-- `adb logcat -s Xposed | grep SmscFixer`
+The script validates events such as `smsc_replaced reason=SLOT_PRIMARY` or `replacement_preserved reason=AMBIGUOUS_CARRIER_SIGNALS`; it does not log raw SMSC values. Delivery must be confirmed through an approved test destination and recorded without message bodies, raw recipient numbers, or raw SMSC values.
 
-You should see `scAddress` being replaced with:
+Detailed diagnostics are opt-in from Settings and may be automatically enabled for documented compatibility investigation. Disable diagnostics after troubleshooting. Default logs are redacted and should not include message contents, prior/replacement SMSC values, carrier names, subscription identifiers, or device fingerprints.
 
-- `+20105996500` for SIM1/primary slot
-- `+20122000020` for SIM2/secondary slot
+## Production controls
 
-### ROM diagnostics mode (A21s / Infinity X)
-
-On detected A21s/Infinity-X style ROM identifiers, the module enables extra diagnostic logs automatically to help tune compatibility.
-
-Use:
-
-- `adb logcat -d -s Xposed | grep "SmscFixer: diag"`
+| Control | Location |
+|---|---|
+| Release candidate and external signing policy | `.github/workflows/release.yml`, `deploy/production.config.yml` |
+| Rooted-device and carrier validation cases | `docs/testing/validation-matrix.md` |
+| Test-layer responsibilities | `docs/testing/test-strategy.md` |
+| Operations and staged rollout | `docs/operations/runbook.md` |
+| Monitoring and redacted evidence | `docs/production/monitoring-alerts.md` |
+| Rollback requirements | `docs/production/rollback.md` |
+| Threat model and logging policy | `docs/security/` |
 
 ## Troubleshooting
 
-### How to confirm active SIM/slot mapping
-
-1. Enable module scope for `android` and your messaging app.
-2. Send one SMS from SIM1 and one SMS from SIM2.
-3. Check:
-   - `adb logcat -s Xposed | grep SmscFixer`
-4. Confirm logs show expected `slotIndex`/carrier details and corresponding forced SMSC.
-
-### Use configuration self-check
-
-1. Open **SmscFixer Settings**.
-2. Press **Run configuration self-check**.
-3. If it fails, re-save settings and validate SMSC/package formats.
-
-### If SIM2 still uses SIM1 SMSC
-
-- Open **SmscFixer Settings** app and verify SIM2 SMSC is saved correctly.
-- Reboot device (or restart scoped apps/processes) after changing settings.
-- Ensure the SMS send path uses compatible `SmsManager` APIs (check `hooked` and `diag` logs).
-- Verify carrier fallback signals (`mccmnc`, `carrier`) are detected in logs when slot is unresolved.
-
-### Common LSPosed scope mistakes
-
-- Module enabled but no `android` framework scope selected.
-- Messaging app not included in LSPosed scope.
-- App/process cache not restarted after enabling scope.
-- Multiple messaging apps in use while only one is scoped.
+If an expected replacement does not occur, first verify the LSPosed scope and process restart, then run the matching validation-matrix case. A preserved-original decision under unknown or conflicting signals is a safety behavior, not a defect. Do not add broad heuristic hooks for vendor `send*` methods; add a documented exact signature to `HookSignatureRegistry` with unit and rooted-device evidence.
