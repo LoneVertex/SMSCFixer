@@ -2,13 +2,28 @@
     <string name="app_name">SMSC Guard</string>
     <string name="settings_activity_label">SMSC Guard Settings</string>
     <string name="xposed_description">Safely applies configured SMSC routing only when a supported SmsManager send path and confident SIM or carrier signal are available.</string>
-    <string name="settings_sim1_primary_smsc">SIM1 / primary SMSC</string>
-    <string name="settings_sim2_secondary_smsc">SIM2 / secondary SMSC</string>
-    <string name="settings_target_app_packages">Target app packages (comma-separated). Invalid entries are rejected; Android framework scope is always required.</string>
-    <string name="settings_diagnostics_logging">Enable temporary detailed diagnostics (may include technical routing metadata)</string>
-    <string name="settings_sim_mapping_help">The module replaces an SMSC only for verified send APIs and confident SIM/carrier signals. Unknown or conflicting signals preserve the original SMSC. Save settings, scope the module to android and your SMS app, then reboot or restart scoped apps.</string>
+
+    <string name="settings_header_eyebrow">Safe routing controls</string>
+    <string name="settings_header_title">Configure with confidence</string>
+    <string name="settings_header_body">SMSC Guard changes routing only when the target send path and SIM or carrier evidence are verified.</string>
+    <string name="settings_section_routing">Routing configuration</string>
+    <string name="settings_section_routing_help">Set the service center address for each intended SIM route.</string>
+    <string name="settings_sim1_primary_smsc">SIM 1 · primary SMSC</string>
+    <string name="settings_sim2_secondary_smsc">SIM 2 · secondary SMSC</string>
+    <string name="settings_smsc_helper">Use 5–20 digits with an optional leading +.</string>
+    <string name="settings_section_scope">Target scope</string>
+    <string name="settings_target_app_packages">Target app packages</string>
+    <string name="settings_scope_helper">Comma-separated packages only. Android framework scope remains required.</string>
+    <string name="settings_section_diagnostics">Diagnostics</string>
+    <string name="settings_diagnostics_logging">Enable temporary detailed diagnostics</string>
+    <string name="settings_diagnostics_helper">Use only while troubleshooting. Diagnostics may include technical routing metadata.</string>
+    <string name="settings_section_actions">Validate and apply</string>
     <string name="settings_save">Save settings</string>
     <string name="settings_self_check_action">Run configuration self-check</string>
+    <string name="settings_status_label">Configuration status</string>
+    <string name="settings_status_initial">No changes saved in this session.</string>
+    <string name="settings_sim_mapping_help">Unknown or conflicting routing evidence preserves the original SMSC. Save settings, scope the module to android and your messaging app, then reboot or restart scoped apps.</string>
+
     <string name="settings_saving">Saving validated settings…</string>
     <string name="settings_saved_reboot">Saved. Reboot device or restart scoped apps to reload configuration.</string>
     <string name="settings_saved_readability_failed">Settings were saved, but the Xposed-readable preferences file could not be confirmed. Reboot and run the self-check before sending messages.</string>

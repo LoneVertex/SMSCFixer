@@ -1,87 +1,272 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/sg_background"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingLeft="20dp"
+    android:paddingTop="24dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="32dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:contentDescription="@string/app_name"
+                android:src="@mipmap/ic_launcher" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_header_eyebrow"
+                    android:textAppearance="@style/TextAppearance.SmscGuard.Eyebrow" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/settings_header_title"
+                    android:textAppearance="@style/TextAppearance.SmscGuard.Title" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:labelFor="@id/primarySmscInput"
-            android:text="@string/settings_sim1_primary_smsc" />
+            android:layout_marginTop="14dp"
+            android:text="@string/settings_header_body"
+            android:textAppearance="@style/TextAppearance.SmscGuard.Body" />
 
-        <EditText
-            android:id="@+id/primarySmscInput"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_hint_primary_smsc"
-            android:inputType="phone" />
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_section"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_routing"
+                android:textAppearance="@style/TextAppearance.SmscGuard.SectionTitle" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/settings_section_routing_help"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:labelFor="@id/primarySmscInput"
+                android:text="@string/settings_sim1_primary_smsc"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Label" />
+
+            <EditText
+                android:id="@+id/primarySmscInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input"
+                android:hint="@string/settings_hint_primary_smsc"
+                android:importantForAutofill="no"
+                android:inputType="phone"
+                android:minHeight="52dp"
+                android:textColor="@color/sg_text_primary"
+                android:textColorHint="@color/sg_text_muted"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/settings_smsc_helper"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:labelFor="@id/secondarySmscInput"
+                android:text="@string/settings_sim2_secondary_smsc"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Label" />
+
+            <EditText
+                android:id="@+id/secondarySmscInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input"
+                android:hint="@string/settings_hint_secondary_smsc"
+                android:importantForAutofill="no"
+                android:inputType="phone"
+                android:minHeight="52dp"
+                android:textColor="@color/sg_text_primary"
+                android:textColorHint="@color/sg_text_muted"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/settings_smsc_helper"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_section"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_scope"
+                android:textAppearance="@style/TextAppearance.SmscGuard.SectionTitle" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/settings_scope_helper"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:labelFor="@id/targetPackagesInput"
+                android:text="@string/settings_target_app_packages"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Label" />
+
+            <EditText
+                android:id="@+id/targetPackagesInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input"
+                android:gravity="top|start"
+                android:hint="@string/settings_hint_target_packages"
+                android:importantForAutofill="no"
+                android:inputType="textNoSuggestions"
+                android:minHeight="76dp"
+                android:textColor="@color/sg_text_primary"
+                android:textColorHint="@color/sg_text_muted"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_section"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_section_diagnostics"
+                android:textAppearance="@style/TextAppearance.SmscGuard.SectionTitle" />
+
+            <CheckBox
+                android:id="@+id/diagnosticsCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:buttonTint="@color/sg_amber"
+                android:minHeight="48dp"
+                android:text="@string/settings_diagnostics_logging"
+                android:textColor="@color/sg_text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/settings_diagnostics_helper"
+                android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:labelFor="@id/secondarySmscInput"
-            android:text="@string/settings_sim2_secondary_smsc" />
-
-        <EditText
-            android:id="@+id/secondarySmscInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/settings_hint_secondary_smsc"
-            android:inputType="phone" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:labelFor="@id/targetPackagesInput"
-            android:text="@string/settings_target_app_packages" />
-
-        <EditText
-            android:id="@+id/targetPackagesInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/settings_hint_target_packages"
-            android:inputType="textNoSuggestions" />
-
-        <CheckBox
-            android:id="@+id/diagnosticsCheck"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/settings_diagnostics_logging" />
+            android:layout_marginTop="24dp"
+            android:text="@string/settings_section_actions"
+            android:textAppearance="@style/TextAppearance.SmscGuard.SectionTitle" />
 
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/settings_save" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_primary_button"
+            android:minHeight="52dp"
+            android:text="@string/settings_save"
+            android:textAllCaps="false"
+            android:textColor="@color/sg_text_on_teal"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/selfCheckButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/settings_self_check_action" />
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_secondary_button"
+            android:minHeight="52dp"
+            android:text="@string/settings_self_check_action"
+            android:textAllCaps="false"
+            android:textColor="@color/sg_text_primary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="@string/settings_status_label"
+            android:textAppearance="@style/TextAppearance.SmscGuard.Label" />
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:accessibilityLiveRegion="polite" />
+            android:accessibilityLiveRegion="polite"
+            android:background="@drawable/bg_status"
+            android:importantForAccessibility="yes"
+            android:minHeight="52dp"
+            android:text="@string/settings_status_initial"
+            android:textAppearance="@style/TextAppearance.SmscGuard.Body" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/settings_sim_mapping_help" />
+            android:layout_marginTop="18dp"
+            android:paddingBottom="8dp"
+            android:text="@string/settings_sim_mapping_help"
+            android:textAppearance="@style/TextAppearance.SmscGuard.Helper" />
     </LinearLayout>
 </ScrollView>
