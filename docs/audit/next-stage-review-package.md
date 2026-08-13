@@ -32,6 +32,8 @@ The branch changes 43 files relative to `main`, adding testable routing/configur
 | Release candidate metadata | Pass | Tag/version validation and unsigned candidate manifest generation passed locally. |
 | Safety regression scans | Pass | No source reintroduction of raw default SMSC output, broad directory permission changes, or mutable action pins was found. |
 | Working tree | Clean | No uncommitted changes at review-package preparation. |
+| CI instrumentation coverage | Pass | CI now compiles and verifies the debug instrumentation-test APK on every push and pull request. |
+| Dependency/build review | Pass with monitored upgrade item | Production debug runtime has no resolved runtime dependencies; declared versions are exact. AGP 8.4/SDK 36 remains a documented compatibility warning pending an isolated AGP 9.0/Gradle 9.1 migration. |
 
 ## Required reviewer focus
 
@@ -53,4 +55,4 @@ Review the `xposedsharedprefs` manifest metadata and `MODE_WORLD_READABLE` reque
 
 ## Review outcome
 
-The branch is ready for code review and controlled device validation. It is **not ready for production deployment** until the gated device, carrier, signing, and rollback evidence is complete.
+The branch is ready for code review and controlled device validation. It is **not ready for production deployment** until the gated device, carrier, signing, and rollback evidence is complete. The final enhanced local assurance suite additionally passed YAML and shell validation, exact-version and secret-pattern scans, immutable-action checks, lint, JVM tests, debug/release assembly, instrumentation-test APK compilation, artifact checks, and Git diff checks.
