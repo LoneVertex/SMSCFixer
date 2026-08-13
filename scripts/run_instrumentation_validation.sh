@@ -3,9 +3,9 @@ set -euo pipefail
 
 APP_APK="${APP_APK:-app/build/outputs/apk/debug/app-debug.apk}"
 TEST_APK="${TEST_APK:-app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk}"
-APP_PACKAGE="${APP_PACKAGE:-com.smscfixer}"
-TEST_RUNNER="${TEST_RUNNER:-com.smscfixer.test/androidx.test.runner.AndroidJUnitRunner}"
-EVIDENCE_FILE="${EVIDENCE_FILE:-/tmp/smscfixer-instrumentation-evidence.txt}"
+APP_PACKAGE="${APP_PACKAGE:-io.github.lonevertex.smscguard}"
+TEST_RUNNER="${TEST_RUNNER:-io.github.lonevertex.smscguard.test/androidx.test.runner.AndroidJUnitRunner}"
+EVIDENCE_FILE="${EVIDENCE_FILE:-/tmp/smscguard-instrumentation-evidence.txt}"
 
 command -v adb >/dev/null 2>&1 || {
   echo "adb is required." >&2

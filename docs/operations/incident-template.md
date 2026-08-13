@@ -7,7 +7,7 @@
 - Observed behavior:
 - Expected behavior:
 - Reproduction steps:
-- Relevant `SmscFixer` logs:
+- Relevant redacted `SmscGuard` logs:
 - Scope configuration and saved target packages:
 - Mitigation/rollback performed:
 - Follow-up action items:

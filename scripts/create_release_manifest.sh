@@ -21,8 +21,9 @@ fi
 
 VERSION_NAME="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\([^"]*\)".*/\1/p' app/build.gradle | head -n 1)"
 VERSION_CODE="$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*\([0-9][0-9]*\).*/\1/p' app/build.gradle | head -n 1)"
-if [[ -z "${VERSION_NAME}" || -z "${VERSION_CODE}" ]]; then
-  echo "Unable to read Android version metadata from app/build.gradle" >&2
+APPLICATION_ID="$(sed -n 's/^[[:space:]]*applicationId[[:space:]]*"\([^"]*\)".*/\1/p' app/build.gradle | head -n 1)"
+if [[ -z "${VERSION_NAME}" || -z "${VERSION_CODE}" || -z "${APPLICATION_ID}" ]]; then
+  echo "Unable to read Android release metadata from app/build.gradle" >&2
   exit 67
 fi
 if [[ "${RELEASE_TAG}" != "v${VERSION_NAME}" ]]; then
@@ -40,6 +41,7 @@ cat > "${OUTPUT_PATH}" <<EOF
   "release_tag": "${RELEASE_TAG}",
   "version_name": "${VERSION_NAME}",
   "version_code": ${VERSION_CODE},
+  "application_id": "${APPLICATION_ID}",
   "commit_sha": "${COMMIT_SHA}",
   "artifact_name": "${ARTIFACT_NAME}",
   "artifact_sha256": "${ARTIFACT_SHA256}",

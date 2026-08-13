@@ -4,7 +4,7 @@ The module is divided into a pure policy/configuration layer and an Android/Xpos
 
 | Risk | Primary automated test | Runtime validation |
 |---|---|---|
-| Invalid package configuration widens hook scope | `SmscFixerConfigTest` | Verify malformed XML on a rooted LSPosed device. |
+| Invalid package configuration widens hook scope | `SmscGuardConfigTest` | Verify malformed XML on a rooted LSPosed device. |
 | Unknown/conflicting routing changes SMSC | `SmscSelectorTest` | Trigger unknown/conflicting signals where the device permits controlled simulation. |
 | Unsupported method is hooked | `HookSignatureRegistryTest` | Confirm registered signatures only in LSPosed logs. |
 | Cache returns stale/unbounded data | `BoundedTtlCacheTest` | Profile repeated sends across subscription changes. |

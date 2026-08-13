@@ -1,7 +1,9 @@
 ---
 app:
-  name: SmscFixer
-  package: com.smscfixer
+  name: SMSC Guard
+  package: io.github.lonevertex.smscguard
+  version_name: 2.0.0
+  version_code: 2000000
   module_type: lsposed
 
 deployment:
@@ -9,7 +11,7 @@ deployment:
   candidate_artifact:
     path: app/build/outputs/apk/release/app-release-unsigned.apk
     status: unsigned_release_candidate
-    manifest: app/build/outputs/apk/release/smscfixer-release-candidate.json
+    manifest: app/build/outputs/apk/release/smscguard-release-candidate.json
   deployable_artifact:
     policy: externally_signed_and_verified_apk_required
   rollout:
@@ -35,7 +37,7 @@ migrations:
   policy_file: docs/production/migrations.md
 
 monitoring:
-  log_tag: SmscFixer
+  log_tag: SmscGuard
   health_signals:
     - "hook_applied after supported-device reboot"
     - "expected redacted sms_replaced or replacement_preserved decision event"

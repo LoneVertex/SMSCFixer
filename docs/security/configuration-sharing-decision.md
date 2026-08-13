@@ -2,7 +2,7 @@
 
 ## Decision
 
-SmscFixer adopts LSPosed’s managed XSharedPreferences path as the preferred configuration-sharing mechanism. The manifest declares `xposedsharedprefs=true`, and Settings requests `MODE_WORLD_READABLE` when obtaining its module preferences. On LSPosed API 93+ environments that support the feature, LSPosed manages the preference location and readability; the hook continues to load configuration by module package and preference name.
+SMSC Guard adopts LSPosed’s managed XSharedPreferences path as the preferred configuration-sharing mechanism. The manifest declares `xposedsharedprefs=true`, and Settings requests `MODE_WORLD_READABLE` when obtaining its module preferences. On LSPosed API 93+ environments that support the feature, LSPosed manages the preference location and readability; the hook continues to load configuration by module package and preference name.
 
 The module retains a narrowly scoped compatibility fallback for older or unavailable managers. If requesting `MODE_WORLD_READABLE` throws `SecurityException`, Settings falls back to private preferences and changes readability only on the single preferences XML file. It never broadens the application data directory or the `shared_prefs` directory. All values are validated after read, and `ConfigurationRepository` rejects an unreadable `XSharedPreferences` file by returning safe defaults.
 
@@ -12,7 +12,7 @@ A signature-protected provider would prevent arbitrary callers but an injected L
 
 ## Migration behavior
 
-The preference name and schema remain `smscfixer_prefs`, so existing values remain logically compatible. The managed LSPosed path may store them outside the legacy application `shared_prefs` directory. The code therefore does not assume a direct legacy path when managed preferences are active. If managed mode is rejected, the legacy file fallback remains available and preserves existing values.
+Version 2.0.0 uses the `smscguard_prefs` preference name under the new `io.github.lonevertex.smscguard` package. Because the Android package migration is a new installation, old `smscfixer_prefs` values are intentionally not copied automatically; the operator re-enters validated settings after the new module is enabled. The managed LSPosed path may store the new values outside the legacy application `shared_prefs` directory. The code therefore does not assume a direct legacy path when managed preferences are active. If managed mode is rejected, the narrow single-file fallback remains available for the new preference file.
 
 ## Required validation
 

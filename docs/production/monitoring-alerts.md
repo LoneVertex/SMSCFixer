@@ -9,14 +9,14 @@ The primary runtime signals are redacted Xposed events. A supported scope should
 Use the following command only on controlled test devices and retain redacted extracts:
 
 ```bash
-adb logcat -d -s Xposed | grep SmscFixer
+adb logcat -d -s Xposed | grep SmscGuard
 ```
 
 Default logs must not contain message bodies, raw destination numbers, previous/replacement SMSC values, full method signatures, carrier names, or device fingerprints. Detailed diagnostics are opt-in and should be disabled after investigation.
 
 ## Alert conditions
 
-Stop or hold the current rollout stage when there is a crash spike involving `com.smscfixer`, repeated hook-install failure, no `hook_applied` evidence after a supported-device reboot, an unexpected package-scope event, a routing mismatch, or a missing `replacement_preserved` event in an unknown/conflicting-signal test. Alert routing is the maintainer channel first, with the optional on-call integration configured outside the repository.
+Stop or hold the current rollout stage when there is a crash spike involving `io.github.lonevertex.smscguard`, repeated hook-install failure, no `hook_applied` evidence after a supported-device reboot, an unexpected package-scope event, a routing mismatch, or a missing `replacement_preserved` event in an unknown/conflicting-signal test. Alert routing is the maintainer channel first, with the optional on-call integration configured outside the repository.
 
 ## Evidence retention
 

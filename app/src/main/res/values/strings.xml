@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">SmscFixer</string>
-    <string name="settings_activity_label">SmscFixer Settings</string>
-    <string name="xposed_description">Applies a configured SMSC only when a supported SmsManager send path and confident SIM/carrier routing signal are available.</string>
+    <string name="app_name">SMSC Guard</string>
+    <string name="settings_activity_label">SMSC Guard Settings</string>
+    <string name="xposed_description">Safely applies configured SMSC routing only when a supported SmsManager send path and confident SIM or carrier signal are available.</string>
     <string name="settings_sim1_primary_smsc">SIM1 / primary SMSC</string>
     <string name="settings_sim2_secondary_smsc">SIM2 / secondary SMSC</string>
     <string name="settings_target_app_packages">Target app packages (comma-separated). Invalid entries are rejected; Android framework scope is always required.</string>

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE_NAME="${PACKAGE_NAME:-com.smscfixer}"
-LOG_TAG="${LOG_TAG:-SmscFixer}"
+PACKAGE_NAME="${PACKAGE_NAME:-io.github.lonevertex.smscguard}"
+LOG_TAG="${LOG_TAG:-SmscGuard}"
 EXPECTED_DECISION="${EXPECTED_DECISION:-SLOT_PRIMARY}"
 TEST_CASE_ID="${TEST_CASE_ID:-D-02}"
 

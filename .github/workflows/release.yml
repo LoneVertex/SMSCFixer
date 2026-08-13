@@ -31,15 +31,15 @@ jobs:
           ./scripts/create_release_manifest.sh \
             "${GITHUB_REF_NAME}" \
             app/build/outputs/apk/release/app-release-unsigned.apk \
-            app/build/outputs/apk/release/smscfixer-release-candidate.json
+            app/build/outputs/apk/release/smscguard-release-candidate.json
           sha256sum app/build/outputs/apk/release/app-release-unsigned.apk \
             > app/build/outputs/apk/release/app-release-unsigned.apk.sha256
       - name: Upload unsigned release candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
-          name: smscfixer-unsigned-release-candidate-${{ github.ref_name }}
+          name: smscguard-unsigned-release-candidate-${{ github.ref_name }}
           path: |
             app/build/outputs/apk/release/app-release-unsigned.apk
             app/build/outputs/apk/release/app-release-unsigned.apk.sha256
-            app/build/outputs/apk/release/smscfixer-release-candidate.json
+            app/build/outputs/apk/release/smscguard-release-candidate.json
           if-no-files-found: error
