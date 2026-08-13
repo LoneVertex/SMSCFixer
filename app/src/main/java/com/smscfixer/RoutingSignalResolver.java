@@ -12,8 +12,12 @@ final class RoutingSignalResolver {
     private static final int PRIMARY_SLOT_INDEX = 0;
     private static final int SECONDARY_SLOT_INDEX = 1;
     private static final long REFLECTION_LOG_THROTTLE_MS = 120_000L;
+    private static final long ROUTING_CACHE_TTL_MS = 300_000L;
+    private static final int ROUTING_CACHE_MAX_ENTRIES = 8;
 
     private final DiagnosticLogger logger;
+    private final BoundedTtlCache<Integer, RoutingSignals> routingCache =
+            new BoundedTtlCache<>(ROUTING_CACHE_MAX_ENTRIES, ROUTING_CACHE_TTL_MS);
 
     RoutingSignalResolver(DiagnosticLogger logger) {
         this.logger = logger;
@@ -21,9 +25,21 @@ final class RoutingSignalResolver {
 
     RoutingSignals resolve(Object smsManager) {
         int subscriptionId = resolveSubscriptionId(smsManager);
+        long now = System.currentTimeMillis();
+        if (subscriptionId != RoutingSignals.INVALID_SUBSCRIPTION_ID) {
+            RoutingSignals cached = routingCache.get(subscriptionId, now);
+            if (cached != null) {
+                return cached;
+            }
+        }
+
         int slotIndex = resolveSlotIndex(subscriptionId, smsManager);
         CarrierInfo carrierInfo = resolveCarrierInfo(subscriptionId);
-        return new RoutingSignals(subscriptionId, slotIndex, carrierInfo.carrierName, carrierInfo.mccMnc);
+        RoutingSignals resolved = new RoutingSignals(subscriptionId, slotIndex, carrierInfo.carrierName, carrierInfo.mccMnc);
+        if (subscriptionId != RoutingSignals.INVALID_SUBSCRIPTION_ID) {
+            routingCache.put(subscriptionId, resolved, now);
+        }
+        return resolved;
     }
 
     private int resolveSubscriptionId(Object smsManager) {
