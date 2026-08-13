@@ -26,6 +26,8 @@ This matrix distinguishes automated repository checks from validation that requi
 | D-08 | Unsupported or vendor-specific `send*` method | Method is not hooked and no argument is changed. |
 | D-09 | Malformed stored target-package CSV | Runtime uses the validated default package scope; arbitrary packages are not hooked. |
 | D-10 | Change settings then reboot/restart scoped process | New valid configuration becomes active and no sensitive default logs are emitted. |
+| D-11 | LSPosed API 93+ with `xposedsharedprefs` metadata | Saving settings uses managed preference storage; the hooked process reads validated configuration without legacy directory permission changes. |
+| D-12 | Legacy or unsupported preference manager | The manager-mode request is rejected, the single XML fallback remains readable, and no app-data or shared_prefs directory permission is broadened. |
 
 ## Evidence handling
 
