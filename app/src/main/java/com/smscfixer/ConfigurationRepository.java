@@ -39,6 +39,10 @@ final class ConfigurationRepository {
     Snapshot load(boolean romDiagnosticsEnabled) {
         try {
             XSharedPreferences prefs = new XSharedPreferences(modulePackage, prefsName);
+            if (prefs.getFile() == null || !prefs.getFile().canRead()) {
+                logger.info("config_unreadable");
+                return new Snapshot(buildDefaultConfig(), romDiagnosticsEnabled);
+            }
             prefs.reload();
             int schemaVersion = prefs.getInt(
                     SmscConfigSchema.KEY_SCHEMA_VERSION,

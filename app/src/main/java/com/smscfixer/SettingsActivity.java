@@ -14,13 +14,14 @@ import java.util.Set;
 
 public class SettingsActivity extends Activity {
     private static final String PREFS_NAME = "smscfixer_prefs";
+    private boolean lsposedManagedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences prefs = openModulePreferences();
         ensureSchemaVersion(prefs);
 
         EditText primaryEdit = findViewById(R.id.primarySmscInput);
@@ -127,11 +128,24 @@ public class SettingsActivity extends Activity {
     }
 
     /**
-     * XSharedPreferences needs a readable XML file on older LSPosed-compatible environments.
-     * Deliberately avoid changing the application data directory or shared_prefs directory,
-     * because broad directory traversal is an unnecessary expansion of the exposure boundary.
+     * Uses LSPosed API 93+ managed storage when available. Older managers retain a narrowly
+     * scoped, single-file readability fallback; directory permissions are never broadened.
      */
+    private SharedPreferences openModulePreferences() {
+        try {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_WORLD_READABLE);
+            lsposedManagedPreferences = true;
+            return prefs;
+        } catch (SecurityException ignored) {
+            lsposedManagedPreferences = false;
+            return getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        }
+    }
+
     private boolean makePrefsReadableForXposed() {
+        if (lsposedManagedPreferences) {
+            return true;
+        }
         File prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
         File prefsFile = new File(prefsDir, PREFS_NAME + ".xml");
         if (!isSafePrefsPath(prefsDir, prefsFile) || !prefsFile.exists()) {

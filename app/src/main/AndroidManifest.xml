@@ -19,6 +19,12 @@
             android:name="xposedminversion"
             android:value="82" />
 
+        <!-- Enables LSPosed API 93+ managed XSharedPreferences support without raising the
+             module's minimum API declaration for older compatible managers. -->
+        <meta-data
+            android:name="xposedsharedprefs"
+            android:value="true" />
+
         <activity
             android:name=".SettingsActivity"
             android:exported="true"
