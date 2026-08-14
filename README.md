@@ -6,7 +6,7 @@
 
 Version **2.0.0** introduces the public SMSC Guard identity, a new launcher icon, and Android application ID **`io.github.lonevertex.smscguard`**. This is a **new Android application installation**, not an in-place update of the retired `com.smscfixer` package. Before installing, retain the previous known-good APK for rollback; disable or remove the old module, install and enable SMSC Guard in LSPosed, recreate its scope, re-enter configuration, then reboot or restart scoped processes.
 
-The implementation is available for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). The v2.0.0 candidate remains unsigned and is **not** a public release.
+The implementation is available for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). A clearly labelled [v2.0.0 PR #4 pre-merge test build](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0-pr4-test.1) is available for controlled testing; it is not a production release. The v2.0.0 release candidate remains unsigned.
 
 The default configuration is intended for a controlled Egyptian dual-SIM setup:
 
@@ -59,6 +59,7 @@ Detailed diagnostics are opt-in from Settings and may be automatically enabled f
 | Monitoring and redacted evidence | `docs/production/monitoring-alerts.md` |
 | Rollback requirements | `docs/production/rollback.md` |
 | Threat model and logging policy | `docs/security/` |
+| Engineering-pack issue registry and applicability decisions | `docs/audit/ai-engineering-pack-issue-registry.md` |
 
 ## Troubleshooting
 
