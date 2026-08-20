@@ -1,0 +1,22 @@
+<resources>
+    <color name="ic_launcher_background">#07152B</color>
+
+    <color name="sg_background">#07152B</color>
+    <color name="sg_surface">#0D203A</color>
+    <color name="sg_surface_elevated">#122B49</color>
+    <color name="sg_field">#0A1B31</color>
+    <color name="sg_field_focused">#102D4B</color>
+    <color name="sg_stroke">#284766</color>
+    <color name="sg_stroke_subtle">#1A3857</color>
+    <color name="sg_teal">#14C8D1</color>
+    <color name="sg_teal_pressed">#0EA5B2</color>
+    <color name="sg_teal_disabled">#315A6B</color>
+    <color name="sg_amber">#FFB547</color>
+    <color name="sg_amber_surface">#362B1A</color>
+    <color name="sg_text_primary">#F3F8FC</color>
+    <color name="sg_text_secondary">#B8C8D7</color>
+    <color name="sg_text_muted">#8DA5B8</color>
+    <color name="sg_text_on_teal">#04232A</color>
+    <color name="sg_status_surface">#10273F</color>
+    <color name="sg_status_stroke">#2C536F</color>
+</resources>

@@ -3,15 +3,16 @@ plugins {
 }
 
 android {
-    namespace 'com.smscfixer'
+    namespace 'io.github.lonevertex.smscguard'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.smscfixer"
+        applicationId "io.github.lonevertex.smscguard"
         minSdk 21
         targetSdk 36
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2000000
+        versionName "2.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -35,4 +36,6 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
     testImplementation 'de.robv.android.xposed:api:82'
     testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
 }

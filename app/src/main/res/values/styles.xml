@@ -1,0 +1,54 @@
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@color/sg_background</item>
+        <item name="android:colorAccent">@color/sg_teal</item>
+        <item name="android:statusBarColor">@color/sg_background</item>
+        <item name="android:navigationBarColor">@color/sg_background</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard" parent="@android:style/TextAppearance.Material">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.Eyebrow">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/sg_teal</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.Title">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/sg_text_primary</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.SectionTitle">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/sg_text_primary</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.Label">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/sg_text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.Body">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/sg_text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="TextAppearance.SmscGuard.Helper">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/sg_text_muted</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+</resources>

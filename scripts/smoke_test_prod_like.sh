@@ -1,42 +1,61 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE_NAME="com.smscfixer"
-LOG_TAG="SmscFixer"
-EXPECTED_SMSC="+20105996500"
+PACKAGE_NAME="${PACKAGE_NAME:-io.github.lonevertex.smscguard}"
+LOG_TAG="${LOG_TAG:-SmscGuard}"
+EXPECTED_DECISION="${EXPECTED_DECISION:-SLOT_PRIMARY}"
+TEST_CASE_ID="${TEST_CASE_ID:-D-02}"
 
-echo "[1/5] checking adb availability"
+case "${EXPECTED_DECISION}" in
+  SLOT_PRIMARY|SLOT_SECONDARY|MCCMNC_FALLBACK|CARRIER_FALLBACK|UNKNOWN_ROUTING_SIGNALS|AMBIGUOUS_CARRIER_SIGNALS)
+    ;;
+  *)
+    echo "Unsupported EXPECTED_DECISION: ${EXPECTED_DECISION}" >&2
+    exit 64
+    ;;
+esac
+
+echo "[1/6] Checking adb availability"
 command -v adb >/dev/null 2>&1
 
-echo "[2/5] ensuring at least one device is connected"
+echo "[2/6] Ensuring exactly one target device is connected"
 DEVICE_COUNT="$(adb devices | awk 'NR>1 && $2=="device"{count++} END{print count+0}')"
-if [[ "${DEVICE_COUNT}" -lt 1 ]]; then
-  echo "No connected device found."
+if [[ "${DEVICE_COUNT}" -ne 1 ]]; then
+  echo "Expected exactly one connected device; found ${DEVICE_COUNT}." >&2
   exit 1
 fi
 
-echo "[3/5] verifying module APK is installed"
+echo "[3/6] Verifying module APK is installed"
 if ! adb shell pm list packages | grep -q "${PACKAGE_NAME}"; then
-  echo "Package ${PACKAGE_NAME} is not installed."
+  echo "Package ${PACKAGE_NAME} is not installed." >&2
   exit 1
 fi
 
-echo "[4/6] clearing logcat to avoid stale matches"
+echo "[4/6] Clearing logcat to exclude stale results"
 adb logcat -c
 
-echo "[5/6] send a test SMS from the target app, then continue"
-read -r -p "Press Enter after sending the SMS..." _
+echo "[5/6] Manual operator action required"
+printf 'Run %s: send one controlled test SMS for the intended SIM/path, then verify delivery through the approved test destination. Press Enter only after completion. ' "${TEST_CASE_ID}"
+read -r _
 
-echo "[6/6] collecting fresh logs and verifying forced SMSC evidence"
+echo "[6/6] Checking redacted decision evidence"
 LOGS="$(adb logcat -d -s Xposed | grep "${LOG_TAG}" || true)"
 if [[ -z "${LOGS}" ]]; then
-  echo "No ${LOG_TAG} logs found."
+  echo "No ${LOG_TAG} logs found." >&2
   exit 1
 fi
 
-if ! echo "${LOGS}" | grep -q "${EXPECTED_SMSC}"; then
-  echo "Expected SMSC ${EXPECTED_SMSC} not found in logs."
-  exit 1
+if [[ "${EXPECTED_DECISION}" == "UNKNOWN_ROUTING_SIGNALS" || "${EXPECTED_DECISION}" == "AMBIGUOUS_CARRIER_SIGNALS" ]]; then
+  if ! printf '%s\n' "${LOGS}" | grep -Eq "event=replacement_preserved reason=${EXPECTED_DECISION}"; then
+    echo "Expected preserved-original decision ${EXPECTED_DECISION} was not found." >&2
+    exit 1
+  fi
+else
+  if ! printf '%s\n' "${LOGS}" | grep -Eq "event=smsc_replaced reason=${EXPECTED_DECISION}"; then
+    echo "Expected replacement decision ${EXPECTED_DECISION} was not found." >&2
+    exit 1
+  fi
 fi
 
-echo "Smoke test passed."
+printf 'Smoke test passed: case=%s decision=%s. Record delivery evidence outside logs without storing message contents or raw SMSC values.\n' \
+  "${TEST_CASE_ID}" "${EXPECTED_DECISION}"

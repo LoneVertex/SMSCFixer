@@ -15,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SmscFixer"
+rootProject.name = "SMSCGuard"
 include ':app'
