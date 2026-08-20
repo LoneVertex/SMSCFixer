@@ -8,11 +8,11 @@
 
 **Base:** `main` at `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43`
 
-**Current review branch:** [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate)
+**Current source:** [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) at merged commit `edbe127fceaea63152592708b46a4cc2812887e7`
 
-**Current review:** [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4)
+**Review history:** [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) is merged.
 
-This record describes the original remediation and next-stage assurance preparation. That preparation was later extended with the SMSC Guard v2.0.0 identity migration and settings redesign, then published for review. The change set has not been signed, released, deployed, installed on a controlled device by this workflow, or used for real-SMS operation.
+This record describes the original remediation and next-stage assurance preparation. That preparation was later extended with the SMSC Guard v2.0.0 identity migration and settings redesign, merged into main, and published as the public v2.0.0 pre-release. The production-target candidate has not been externally signed, stable deployment remains gated, and device/carrier evidence remains controlled.
 
 ## Change map
 
@@ -58,9 +58,9 @@ Review the `xposedsharedprefs` manifest metadata and `MODE_WORLD_READABLE` reque
 | Real carrier delivery | Not run | Approved test SIM/destination and separate explicit authorization before send. |
 | Signed artifact | Not created | Controlled external signing owner must use manifest/checksum/certificate handoff. |
 | Rollback rehearsal | Not run | Signed candidate and known-good signed artifact on controlled device. |
-| Remote branch / PR | Complete | [Review branch](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) and [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) are published; the PR includes risk, testing evidence, rollback notes, and release-state boundaries. |
+| Main branch / PR | Complete | The change set is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4); the public `v2.0.0` pre-release contains the controlled-test artifacts and release-state boundaries. |
 | AGP 8.4 / compile SDK 36 warning | Open monitoring item | Evaluate plugin/Gradle upgrade in an isolated compatibility change. |
 
 ## Review outcome
 
-The current SMSC Guard review branch is ready for code review and controlled device validation through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). It is **not ready for production deployment** until the gated device, carrier, signing, and rollback evidence is complete. The final enhanced local assurance suite additionally passed YAML and shell validation, exact-version and secret-pattern scans, immutable-action checks, lint, JVM tests, debug/release assembly, instrumentation-test APK compilation, artifact checks, and Git diff checks.
+The SMSC Guard implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) and available as the public `v2.0.0` pre-release. It is **not ready for stable production deployment** until the gated device, carrier, signing, and rollback evidence is complete. The final enhanced local assurance suite additionally passed YAML and shell validation, exact-version and secret-pattern scans, immutable-action checks, lint, JVM tests, debug/release assembly, instrumentation-test APK compilation, artifact checks, and Git diff checks.

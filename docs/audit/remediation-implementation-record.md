@@ -2,7 +2,7 @@
 
 ## Scope and branch
 
-The remediation program was implemented from audited base commit `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43` on the original local branch `manus/smscfixer-remediation`. The changes remain separated into reviewable commits and are now published for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). No release publication, controlled signing action, device installation, or real-SMS operation has been performed by this repository change set.
+The remediation program was implemented from audited base commit `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43` on the original local branch `manus/smscfixer-remediation`. The changes were merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). The public `v2.0.0` release is a pre-release for controlled testing; its production-target candidate remains unsigned. No production signing, device installation, or SMS operation is authorized by this record.
 
 | Commit | Purpose |
 |---|---|
@@ -42,7 +42,7 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \
 
 That historical remediation run completed with `BUILD SUCCESSFUL` and produced both `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release-unsigned.apk`. Workflow and deployment YAML passed `yamllint`; release helper and smoke scripts passed `bash -n`; `./scripts/verify_release_config.sh v1.0.0` passed; and a local unsigned candidate manifest was generated successfully.
 
-The SMSC Guard v2.0.0 review head passed `clean lint test assembleDebug assembleRelease assembleDebugAndroidTest` with Java 17 at the application/UI head, and the current branch head (`1aafc9c7b671e5af2b11be44ea3e5c814fe4d008`) additionally contains the release-workflow test-tag classification correction. The reproduced unsigned candidate is version `2.0.0` / `2000000` for `io.github.lonevertex.smscguard`; its candidate SHA-256 is recorded in the external signing handoff package and must be reverified by the controlled signing owner before use. The downloadable `v2.0.0-pr4-test.1` pre-merge build is a debug-signed controlled-test artifact, not a production release.
+The merged SMSC Guard v2.0.0 main head (`edbe127fceaea63152592708b46a4cc2812887e7`) passed `clean lint test assembleDebug assembleRelease assembleDebugAndroidTest` with Java 17 and post-merge CI passed. The public `v2.0.0` pre-release is built from that main head. The reproduced unsigned candidate is version `2.0.0` / `2000000` for `io.github.lonevertex.smscguard`; its candidate SHA-256 must be reverified by the controlled signing owner before use. The downloadable debug APK is for controlled testing only, not a production artifact.
 
 The only build warning retained is that Android Gradle Plugin 8.4.0 reports compile SDK 36 as newer than the plugin’s tested compile SDK range. The project nevertheless built, linted, and tested successfully in the configured Java 17 / Android SDK 36 environment. Treat AGP/compile-SDK compatibility as a monitored upgrade item rather than suppressing the warning without validation.
 

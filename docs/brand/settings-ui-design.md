@@ -117,4 +117,4 @@ No rooted-device testing, LSPosed activation, device installation, carrier inter
 
 ## Scope Boundary
 
-This document records a UI-only change. It does not authorize signing, release publication, installation, configuration scoping, rooting changes, carrier changes, or SMS transmission. The corresponding code changes are published for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4); review publication does not authorize deployment actions.
+This document records a UI-only change. It does not authorize signing, stable-release deployment, installation, configuration scoping, rooting changes, carrier changes, or SMS transmission. The corresponding code is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) and included in the [public v2.0.0 pre-release](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0); the pre-release does not authorize stable production deployment.

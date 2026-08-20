@@ -6,7 +6,7 @@
 
 Version **2.0.0** introduces the public SMSC Guard identity, a new launcher icon, and Android application ID **`io.github.lonevertex.smscguard`**. This is a **new Android application installation**, not an in-place update of the retired `com.smscfixer` package. Before installing, retain the previous known-good APK for rollback; disable or remove the old module, install and enable SMSC Guard in LSPosed, recreate its scope, re-enter configuration, then reboot or restart scoped processes.
 
-The implementation is available for review on [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). A clearly labelled [v2.0.0 PR #4 pre-merge test build](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0-pr4-test.1) is available for controlled testing; it is not a production release. The v2.0.0 release candidate remains unsigned.
+The implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). The [public v2.0.0 pre-release](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0) is available for controlled testing; it is not a stable production release. The v2.0.0 release candidate remains unsigned.
 
 The default configuration is intended for a controlled Egyptian dual-SIM setup:
 
@@ -51,7 +51,7 @@ Detailed diagnostics are opt-in from Settings and may be automatically enabled f
 | Control | Location |
 |---|---|
 | Release candidate and external signing policy | `.github/workflows/release.yml`, `deploy/production.config.yml` |
-| Current implementation review | [`manus/smsc-guard-v2-release-candidate`](https://github.com/LoneVertex/SMSCFixer/tree/manus/smsc-guard-v2-release-candidate), [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) |
+| Current implementation and public pre-release | [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main), [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4), [v2.0.0 pre-release](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0) |
 | v2.0.0 migration and rollback evidence | `docs/production/smsc-guard-v2-migration.md`, `docs/production/release-and-rollback-evidence.md` |
 | Rooted-device and carrier validation cases | `docs/testing/validation-matrix.md` |
 | Test-layer responsibilities | `docs/testing/test-strategy.md` |

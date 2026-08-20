@@ -10,11 +10,12 @@ The current repository evidence supports **YES — WITH CONDITIONS** for product
 
 | Field | Verified value |
 |---|---|
-| Branch | `manus/smsc-guard-v2-release-candidate` |
-| Current head | `1aafc9c7b671e5af2b11be44ea3e5c814fe4d008` |
+| Branch | `main` |
+| Current head | `edbe127fceaea63152592708b46a4cc2812887e7` |
 | Pull request | [LoneVertex/SMSCFixer#4](https://github.com/LoneVertex/SMSCFixer/pull/4) |
 | Base branch | `main` |
-| PR state | Open; no merge performed |
+| PR state | Merged into main |
+| Public release | [v2.0.0 pre-release](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0) |
 | Application ID | `io.github.lonevertex.smscguard` |
 | Version | `2.0.0` / `2000000` |
 | Product label | SMSC Guard |
@@ -110,8 +111,8 @@ This verdict applies only to the repository and review artifacts. It means the i
 
 ## Recommended next actions
 
-1. Review and merge the canonical registry and final pack report into PR #4 as documentation evidence.
-2. On the user’s rooted test phone, install only the debug-signed pre-merge test APK after verifying its checksum.
+1. Keep the canonical registry and final pack report synchronized with main and the public pre-release as controlled evidence evolves.
+2. On the user’s rooted test phone, install only the debug-signed public pre-release APK after verifying its checksum.
 3. Execute UI, D-01 through D-12, and accessibility cases with redacted evidence; do not infer device success from CI.
 4. If non-delivery safety gates pass, obtain explicit authorization before any controlled carrier-delivery case.
 5. Re-run the signed-candidate and rollback evidence workflow under the external signing owner.
