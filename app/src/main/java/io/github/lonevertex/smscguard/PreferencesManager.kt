@@ -124,4 +124,24 @@ class PreferencesManager(private val context: Context) {
             true
         }.getOrDefault(false)
     }
+
+    fun saveSettings(
+        primarySmsc: String,
+        secondarySmsc: String,
+        targetsCsv: String,
+        diagnosticsEnabled: Boolean
+    ): Boolean {
+        val prefs = openPreferences()
+        val stored = prefs.edit()
+            .putInt(SmscConfigSchema.KEY_SCHEMA_VERSION, SmscConfigSchema.CURRENT_VERSION)
+            .putString(SmscConfigSchema.KEY_PRIMARY_SMSC, primarySmsc.trim())
+            .putString(SmscConfigSchema.KEY_SECONDARY_SMSC, secondarySmsc.trim())
+            .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targetsCsv)
+            .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, diagnosticsEnabled)
+            .commit()
+        if (stored) {
+            syncToRemote(prefs)
+        }
+        return stored
+    }
 }

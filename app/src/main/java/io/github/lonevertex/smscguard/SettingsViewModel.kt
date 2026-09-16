@@ -13,7 +13,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 sealed class UiStatus {
-    data class ResourceMessage(@StringRes val resId: Int, val isError: Boolean = false) : UiStatus()
+    data class ResourceMessage(
+        @StringRes val resId: Int,
+        val formatArgs: List<Any> = emptyList(),
+        val isError: Boolean = false
+    ) : UiStatus()
     data class TextMessage(val message: String, val isError: Boolean = false) : UiStatus()
 }
 
@@ -113,7 +117,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             it.copy(
                 primarySmsc = DEFAULT_PRIMARY,
                 isPrimaryValid = true,
-                status = UiStatus.TextMessage("Slot 0 reset to Vodafone Egypt default ($DEFAULT_PRIMARY)")
+                status = UiStatus.ResourceMessage(
+                    R.string.status_slot0_reset,
+                    listOf(DEFAULT_PRIMARY)
+                )
             )
         }
     }
@@ -123,7 +130,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             it.copy(
                 secondarySmsc = DEFAULT_SECONDARY,
                 isSecondaryValid = true,
-                status = UiStatus.TextMessage("Slot 1 reset to Orange Egypt default ($DEFAULT_SECONDARY)")
+                status = UiStatus.ResourceMessage(
+                    R.string.status_slot1_reset,
+                    listOf(DEFAULT_SECONDARY)
+                )
             )
         }
     }
@@ -155,7 +165,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 customPackageInput = "",
                 isCustomPackageValid = true,
                 isDefaultScopeActive = updated == DEFAULT_PACKAGES,
-                status = UiStatus.TextMessage("Package added: $input")
+                status = UiStatus.ResourceMessage(R.string.status_package_added, listOf(input))
             )
         }
     }
@@ -217,17 +227,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         viewModelScope.launch {
             val stored = withContext(Dispatchers.IO) {
-                val stored = prefs.edit()
-                    .putInt(SmscConfigSchema.KEY_SCHEMA_VERSION, SmscConfigSchema.CURRENT_VERSION)
-                    .putString(SmscConfigSchema.KEY_PRIMARY_SMSC, state.primarySmsc.trim())
-                    .putString(SmscConfigSchema.KEY_SECONDARY_SMSC, state.secondarySmsc.trim())
-                    .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targetsCsv)
-                    .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, state.diagnosticsEnabled)
-                    .commit()
-                if (stored) {
-                    preferencesManager.syncToRemote(prefs)
-                }
-                stored
+                preferencesManager.saveSettings(
+                    primarySmsc = state.primarySmsc,
+                    secondarySmsc = state.secondarySmsc,
+                    targetsCsv = targetsCsv,
+                    diagnosticsEnabled = state.diagnosticsEnabled
+                )
             }
 
             _uiState.update {
@@ -295,7 +300,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             it.copy(
                 simulationStep = step,
                 sanitizedRoutingDecision = decision,
-                status = UiStatus.TextMessage("Routing verified: $decision")
+                status = UiStatus.ResourceMessage(R.string.status_routing_verified, listOf(decision))
             )
         }
     }

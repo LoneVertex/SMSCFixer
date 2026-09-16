@@ -66,7 +66,13 @@ fun SettingsDashboard(
     LaunchedEffect(state.status) {
         state.status?.let { status ->
             val message = when (status) {
-                is UiStatus.ResourceMessage -> context.getString(status.resId)
+                is UiStatus.ResourceMessage -> {
+                    if (status.formatArgs.isEmpty()) {
+                        context.getString(status.resId)
+                    } else {
+                        context.getString(status.resId, *status.formatArgs.toTypedArray())
+                    }
+                }
                 is UiStatus.TextMessage -> status.message
             }
             snackbarHostState.showSnackbar(message)

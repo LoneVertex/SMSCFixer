@@ -54,4 +54,8 @@
     <string name="add_action">Add</string>
     <string name="status_lsposed_active">LSPosed Active</string>
     <string name="status_lsposed_pending">Module Standalone / Service Pending</string>
+    <string name="status_slot0_reset">Slot 0 reset to Vodafone Egypt default (%1$s)</string>
+    <string name="status_slot1_reset">Slot 1 reset to Orange Egypt default (%1$s)</string>
+    <string name="status_package_added">Package added: %1$s</string>
+    <string name="status_routing_verified">Routing verified: %1$s</string>
 </resources>
