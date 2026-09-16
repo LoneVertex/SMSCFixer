@@ -29,16 +29,6 @@ final class ConfigurationRepository {
         this.logger = logger;
     }
 
-    ConfigurationRepository(
-            String modulePackage,
-            String prefsName,
-            String defaultPrimarySmsc,
-            String defaultSecondarySmsc,
-            DiagnosticLogger logger
-    ) {
-        this(defaultPrimarySmsc, defaultSecondarySmsc, logger);
-    }
-
     Snapshot load(SharedPreferences prefs, boolean romDiagnosticsEnabled) {
         if (prefs == null) {
             return new Snapshot(buildDefaultConfig(), romDiagnosticsEnabled);

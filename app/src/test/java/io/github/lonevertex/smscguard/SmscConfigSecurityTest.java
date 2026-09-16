@@ -125,8 +125,6 @@ public class SmscConfigSecurityTest {
     public void configurationRepositoryRecoversFromNullOrCorruptedStorage() {
         DiagnosticLogger logger = new DiagnosticLogger("TestTag");
         ConfigurationRepository repo = new ConfigurationRepository(
-                "io.github.lonevertex.smscguard",
-                "smscguard_prefs",
                 DEFAULT_PRIMARY,
                 DEFAULT_SECONDARY,
                 logger

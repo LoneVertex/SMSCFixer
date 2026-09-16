@@ -124,13 +124,4 @@ class PreferencesManager(private val context: Context) {
             true
         }.getOrDefault(false)
     }
-
-    @Deprecated("Superseded by isLsposedBound in API 102", ReplaceWith("isLsposedBound.value"))
-    val isLsposedManaged: Boolean
-        get() = isLsposedBound.value
-
-    @Deprecated("Superseded by syncToRemote in API 102", ReplaceWith("syncToRemote(openPreferences())"))
-    fun makePrefsReadableForXposed(): Boolean {
-        return syncToRemote(openPreferences())
-    }
 }

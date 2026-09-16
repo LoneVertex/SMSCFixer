@@ -85,8 +85,6 @@ public class SmscGuardConfigTest {
     public void configurationRepositoryLoadsDefaultWhenPrefsNull() {
         DiagnosticLogger logger = new DiagnosticLogger("TestTag");
         ConfigurationRepository repo = new ConfigurationRepository(
-                "io.github.lonevertex.smscguard",
-                "smscguard_prefs",
                 "+20105996500",
                 "+20122000020",
                 logger
@@ -104,8 +102,6 @@ public class SmscGuardConfigTest {
     public void configurationRepositoryLoadsFromSharedPreferences() {
         DiagnosticLogger logger = new DiagnosticLogger("TestTag");
         ConfigurationRepository repo = new ConfigurationRepository(
-                "io.github.lonevertex.smscguard",
-                "smscguard_prefs",
                 "+fallbackPrimary",
                 "+fallbackSecondary",
                 logger

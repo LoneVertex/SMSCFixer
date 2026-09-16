@@ -25,8 +25,6 @@ class SmscGuardModule : XposedModule() {
         private val HOOKED_SCOPES = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
         private val LOGGER = DiagnosticLogger(TAG)
         private val CONFIGURATION_REPOSITORY = ConfigurationRepository(
-            "io.github.lonevertex.smscguard",
-            PREFS_NAME,
             DEFAULT_SMSC_PRIMARY,
             DEFAULT_SMSC_SECONDARY,
             LOGGER
