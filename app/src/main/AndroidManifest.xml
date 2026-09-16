@@ -20,9 +20,9 @@
 
         <provider
             android:name="io.github.libxposed.service.XposedProvider"
-            android:authorities="${applicationId}.xposedprovider"
+            android:authorities="${applicationId}.XposedService"
             android:exported="true"
-            tools:replace="android:authorities" />
+            tools:ignore="ExportedContentProvider" />
 
         <activity
             android:name=".SettingsActivity"

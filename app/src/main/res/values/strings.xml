@@ -47,8 +47,9 @@
     <string name="redacted_diagnostics_desc">Technical audit logging with privacy enforcement. Raw phone numbers, SMSC addresses, carrier names, and message bodies are strictly redacted.</string>
     <string name="simulate_route_test">Simulate Verification Decision</string>
     <string name="module_ready">Hook Ready</string>
-    <string name="module_managed_storage">API 93+ Managed Storage</string>
-    <string name="module_legacy_storage">World-Readable Storage</string>
+    <string name="module_managed_storage">API 102 Remote Service Storage</string>
+    <string name="module_legacy_storage">Private Storage (Service Pending)</string>
+    <string name="module_local_storage">Private Storage (Service Pending)</string>
     <string name="add_package_label">Add Custom Target Package</string>
     <string name="add_action">Add</string>
     <string name="status_lsposed_active">LSPosed Active</string>

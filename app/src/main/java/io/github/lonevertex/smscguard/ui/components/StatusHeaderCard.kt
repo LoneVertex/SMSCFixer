@@ -158,7 +158,7 @@ fun StatusHeaderCard(
                         text = if (isLsposedBound || isManaged) {
                             stringResource(R.string.module_managed_storage)
                         } else {
-                            stringResource(R.string.module_legacy_storage)
+                            stringResource(R.string.module_local_storage)
                         },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

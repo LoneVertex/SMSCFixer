@@ -25,6 +25,11 @@ class PreferencesManager(private val context: Context) {
         private val _frameworkInfo = MutableStateFlow<String?>(null)
         val frameworkInfo: StateFlow<String?> = _frameworkInfo.asStateFlow()
 
+        @Volatile
+        private var activeInstance: PreferencesManager? = null
+        @Volatile
+        private var pendingSync = false
+
         private val serviceListener = object : XposedServiceHelper.OnServiceListener {
             override fun onServiceBind(service: XposedService) {
                 sharedService = service
@@ -32,6 +37,7 @@ class PreferencesManager(private val context: Context) {
                 _frameworkInfo.value = runCatching {
                     "${service.frameworkName} ${service.frameworkVersion} (${service.frameworkVersionCode})"
                 }.getOrNull()
+                activeInstance?.let { it.syncToRemote(it.openPreferences()) }
             }
 
             override fun onServiceDied(service: XposedService) {
@@ -48,11 +54,13 @@ class PreferencesManager(private val context: Context) {
     }
 
     init {
+        activeInstance = this
         if (listenerRegistered.compareAndSet(false, true)) {
             XposedServiceHelper.registerListener(serviceListener)
         }
         if (sharedService != null) {
             _isLsposedBound.value = true
+            syncToRemote(openPreferences())
         }
     }
 
@@ -93,9 +101,13 @@ class PreferencesManager(private val context: Context) {
         syncToRemote(prefs)
     }
 
-    fun syncToRemote(prefs: SharedPreferences) {
-        val service = sharedService ?: return
-        runCatching {
+    fun syncToRemote(prefs: SharedPreferences): Boolean {
+        val service = sharedService
+        if (service == null) {
+            pendingSync = true
+            return false
+        }
+        return runCatching {
             service.getRemotePreferences(PREFS_NAME).edit {
                 prefs.all.forEach { (key, value) ->
                     when (value) {
@@ -108,7 +120,9 @@ class PreferencesManager(private val context: Context) {
                     }
                 }
             }
-        }
+            pendingSync = false
+            true
+        }.getOrDefault(false)
     }
 
     @Deprecated("Superseded by isLsposedBound in API 102", ReplaceWith("isLsposedBound.value"))
@@ -117,7 +131,6 @@ class PreferencesManager(private val context: Context) {
 
     @Deprecated("Superseded by syncToRemote in API 102", ReplaceWith("syncToRemote(openPreferences())"))
     fun makePrefsReadableForXposed(): Boolean {
-        syncToRemote(openPreferences())
-        return true
+        return syncToRemote(openPreferences())
     }
 }

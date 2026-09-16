@@ -35,7 +35,7 @@ public class SettingsAndManifestInstrumentedTest {
     public void manifestDeclaresModernLibxposedProvider() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         PackageManager packageManager = context.getPackageManager();
-        String expectedAuthority = context.getPackageName() + ".xposedprovider";
+        String expectedAuthority = context.getPackageName() + ".XposedService";
         ComponentName providerComponent = new ComponentName(
                 context.getPackageName(),
                 "io.github.libxposed.service.XposedProvider"
@@ -43,7 +43,7 @@ public class SettingsAndManifestInstrumentedTest {
 
         ProviderInfo providerInfo = packageManager.getProviderInfo(providerComponent, 0);
         assertNotNull("XposedProvider must be registered in AndroidManifest", providerInfo);
-        assertEquals("XposedProvider authority must match ${applicationId}.xposedprovider",
+        assertEquals("XposedProvider authority must match ${applicationId}.XposedService",
                 expectedAuthority, providerInfo.authority);
         assertTrue("XposedProvider must be exported for modern framework binding",
                 providerInfo.exported);
@@ -157,6 +157,8 @@ public class SettingsAndManifestInstrumentedTest {
                     sb.append(line).append('\n');
                 }
                 String content = sb.toString();
+                assertTrue("scope.list must include android",
+                        content.contains("android"));
                 assertTrue("scope.list must include com.google.android.apps.messaging",
                         content.contains("com.google.android.apps.messaging"));
                 assertTrue("scope.list must include com.android.mms",

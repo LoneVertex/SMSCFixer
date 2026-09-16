@@ -7,7 +7,6 @@ import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.HotReloadedParam
 import io.github.libxposed.api.XposedModuleInterface.HotReloadingParam
 import io.github.libxposed.api.XposedModuleInterface.PackageReadyParam
-import androidx.annotation.RequiresApi
 import java.lang.reflect.Method
 import java.util.Collections
 import java.util.Locale
@@ -43,33 +42,19 @@ class SmscGuardModule : XposedModule() {
     }
 
     private var prefsChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
+    @Volatile
+    private var processInitialized = false
 
     override fun onPackageReady(param: PackageReadyParam) {
-        if (!param.isFirstPackage) return
-
-        initializeRomDiagnostics()
-
-        // Access framework remote preferences
-        val remotePrefs = runCatching { getRemotePreferences(PREFS_NAME) }.getOrNull()
-        updateConfigFromPrefs(remotePrefs)
-
-        // Reactive config change listener
-        remotePrefs?.let { prefs ->
-            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
-                updateConfigFromPrefs(prefs)
-            }
-            prefsChangeListener = listener
-            prefs.registerOnSharedPreferenceChangeListener(listener)
-        }
+        ensureProcessInitialized()
 
         if (!SmscRuntimeConfig.shouldHandlePackage(param.packageName, runtimeConfig.targetPackages)) {
             LOGGER.diagnostic("package_skipped", "scope=not_targeted")
-            detach()
             return
         }
 
         val scopeKey = "${param.packageName}|${System.identityHashCode(param.classLoader)}"
-        if (!HOOKED_SCOPES.add(scopeKey)) {
+        if (HOOKED_SCOPES.contains(scopeKey)) {
             return
         }
 
@@ -80,10 +65,29 @@ class SmscGuardModule : XposedModule() {
             return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            hookSupportedSendMethods(smsManagerClass)
-        } else {
-            LOGGER.diagnostic("unsupported_sdk_version", "sdk=" + Build.VERSION.SDK_INT)
+        val hookedCount = hookSupportedSendMethods(smsManagerClass)
+        if (hookedCount > 0) {
+            HOOKED_SCOPES.add(scopeKey)
+        }
+    }
+
+    private fun ensureProcessInitialized() {
+        if (processInitialized) return
+        synchronized(this) {
+            if (processInitialized) return
+            initializeRomDiagnostics()
+
+            val remotePrefs = runCatching { getRemotePreferences(PREFS_NAME) }.getOrNull()
+            updateConfigFromPrefs(remotePrefs)
+
+            remotePrefs?.let { prefs ->
+                val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+                    updateConfigFromPrefs(prefs)
+                }
+                prefsChangeListener = listener
+                prefs.registerOnSharedPreferenceChangeListener(listener)
+            }
+            processInitialized = true
         }
     }
 
@@ -102,7 +106,7 @@ class SmscGuardModule : XposedModule() {
         LOGGER.setDiagnosticsEnabled(snapshot.diagnosticsEnabled)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @android.annotation.SuppressLint("NewApi")
     private fun hookSupportedSendMethods(clazz: Class<*>): Int {
         var hookedCount = 0
         val seenSignatures = HashSet<String>()
@@ -112,8 +116,7 @@ class SmscGuardModule : XposedModule() {
 
             try {
                 hook(method).intercept { chain ->
-                    val sig = HookSignatureRegistry.match(chain.executable as Method)
-                    if (sig == null || chain.args.size <= sig.smscArgumentIndex) {
+                    if (chain.args.size <= signature.smscArgumentIndex) {
                         return@intercept chain.proceed()
                     }
 
@@ -134,13 +137,13 @@ class SmscGuardModule : XposedModule() {
                         return@intercept chain.proceed()
                     }
 
-                    val original = chain.getArg(sig.smscArgumentIndex)
+                    val original = chain.getArg(signature.smscArgumentIndex)
                     if (selection.smsc == original) {
                         return@intercept chain.proceed()
                     }
 
                     val newArgs = chain.args.toTypedArray()
-                    newArgs[sig.smscArgumentIndex] = selection.smsc
+                    newArgs[signature.smscArgumentIndex] = selection.smsc
                     LOGGER.diagnostic("smsc_replaced", "reason=" + selection.reason)
                     return@intercept chain.proceed(newArgs)
                 }
