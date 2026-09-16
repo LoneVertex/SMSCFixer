@@ -1,0 +1,57 @@
+name: Device Compatibility Report
+description: Submit verified compatibility test results for a specific device, ROM, or carrier
+title: "[Device Compatibility]: "
+labels: ["compatibility", "verified-device"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help grow our [Device Compatibility Registry](docs/operations/device-compatibility-registry.md)!
+        Share your verified test results for your hardware and carrier combination.
+  - type: input
+    id: device_model
+    attributes:
+      label: Device Model & Manufacturer
+      description: Exact device model (e.g. Samsung Galaxy A21s SM-A217F, Google Pixel 8 Pro)
+      placeholder: Samsung Galaxy A21s (SM-A217F)
+    validations:
+      required: true
+  - type: input
+    id: rom_android
+    attributes:
+      label: Android Version & ROM
+      description: Android release version, API level, and ROM name (e.g. OneUI 4.1 / Android 12, LineageOS 21 / Android 14)
+      placeholder: LineageOS 21 (Android 14 / API 34)
+    validations:
+      required: true
+  - type: input
+    id: root_framework
+    attributes:
+      label: Root & Hook Framework
+      description: Root manager and framework (e.g. KernelSU + LSPosed v1.9.3 Zygisk)
+      placeholder: KernelSU v0.9.5 + LSPosed v1.9.3 (Zygisk)
+    validations:
+      required: true
+  - type: dropdown
+    id: dual_sim_status
+    attributes:
+      label: Dual-SIM Functionality
+      description: Did dual-SIM slot-based routing function as expected?
+      options:
+        - "Confirmed Working: Slot-based routing correctly applied per SIM"
+        - "Single SIM Only Tested: Working as expected"
+        - "Issues Observed: Details below"
+    validations:
+      required: true
+  - type: textarea
+    id: carriers_tested
+    attributes:
+      label: Carriers Tested
+      description: Active carrier names and countries (e.g. SIM1: Vodafone Egypt, SIM2: Orange Egypt)
+    validations:
+      required: true
+  - type: textarea
+    id: verification_notes
+    attributes:
+      label: Verification Notes & Smoke Test Output
+      description: Outcome of smoke test (`./scripts/smoke_test_prod_like.sh`) or manual SMS send confirmation.

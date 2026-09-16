@@ -1,0 +1,38 @@
+name: Feature Request / Carrier Preset
+description: Suggest a new feature, carrier preset, or architectural enhancement for SMSC Guard
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for SMSC Guard? We welcome suggestions for new carrier presets, UI enhancements, and framework integrations.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: Is your feature request related to a specific carrier problem, dual-SIM issue, or workflow friction?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution / Feature Description
+      description: Describe the solution you would like to see implemented.
+    validations:
+      required: true
+  - type: textarea
+    id: carrier_details
+    attributes:
+      label: Carrier Details (If Requesting Carrier Preset)
+      description: Carrier Name, Country, MCC/MNC, and official public SMSC number (in strict international E.164 format, e.g. `+20105996500`).
+      placeholder: |
+        Carrier: Telecom Egypt (WE)
+        Country: Egypt
+        MCC/MNC: 602 04
+        SMSC: +201550000020
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or workarounds you have considered.

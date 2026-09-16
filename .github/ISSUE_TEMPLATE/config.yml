@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Reporting
+    url: https://github.com/LoneVertex/SMSCFixer/security/policy
+    about: Please report potential security vulnerabilities privately.
+  - name: GitHub Discussions / Community Q&A
+    url: https://github.com/LoneVertex/SMSCFixer/discussions
+    about: Ask questions, share carrier configurations, or discuss setup tips.

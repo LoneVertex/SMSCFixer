@@ -1,0 +1,83 @@
+name: Bug Report
+description: Report a defect, crash, or SMS routing failure in SMSC Guard
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue with SMSC Guard! Please provide enough details for us to diagnose the problem.
+        **Do NOT include private messages, phone numbers, or unredacted personal identifiers (PII).**
+  - type: input
+    id: app_version
+    attributes:
+      label: SMSC Guard Version
+      description: What version of SMSC Guard are you running? (e.g., v2.0.0)
+      placeholder: v2.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Device & OS Environment
+      description: Device model, Android version, and ROM (e.g., Samsung Galaxy A21s, OneUI / LineageOS 21, Android 14)
+      placeholder: Pixel 7 Pro, Android 14 (API 34), Stock ROM
+    validations:
+      required: true
+  - type: input
+    id: xposed_framework
+    attributes:
+      label: LSPosed / Xposed Framework & Root Solution
+      description: Framework implementation and root manager (e.g., LSPosed v1.9.2 Zygisk, KernelSU / Magisk v27.0)
+      placeholder: LSPosed v1.9.3 (Zygisk), KernelSU v0.9.5
+    validations:
+      required: true
+  - type: input
+    id: carrier_info
+    attributes:
+      label: Carriers & SIM Configuration
+      description: Dual-SIM or Single-SIM, and active carriers (e.g., SIM1 Vodafone Egypt, SIM2 Orange Egypt)
+      placeholder: Dual SIM - SIM1 Vodafone Egypt, SIM2 Orange Egypt
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: Clear description of the unexpected behavior or failure.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to trigger the issue.
+      placeholder: |
+        1. Open SMSC Guard Settings
+        2. Set SIM1 SMSC to ...
+        3. Send an SMS via Google Messages on SIM1
+        4. Message fails to send or uses wrong routing
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen under correct operation.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Redacted Logs
+      description: Logcat or diagnostics output. Please verify that all personal phone numbers and private data are redacted.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have verified that all sensitive personal identifiers (PII) are redacted from logs and screenshots.
+          required: true
+        - label: I am testing on a supported Android version (API 21+) and verified that the module is enabled in LSPosed with proper scope.
+          required: true
