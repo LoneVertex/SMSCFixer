@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="io.github.libxposed.service, io.github.libxposed.service.interfaces" />
 
     <application
         android:allowBackup="false"
@@ -7,27 +10,19 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:description="@string/xposed_description"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <meta-data
-            android:name="xposedmodule"
-            android:value="true" />
 
         <meta-data
             android:name="xposeddescription"
             android:value="@string/xposed_description" />
 
-        <!-- Keep aligned with compileOnly dependency de.robv.android.xposed:api:82 -->
-        <meta-data
-            android:name="xposedminversion"
-            android:value="82" />
-
-        <!-- Enables LSPosed API 93+ managed XSharedPreferences support without raising the
-             module's minimum API declaration for older compatible managers. -->
-        <meta-data
-            android:name="xposedsharedprefs"
-            android:value="true" />
+        <provider
+            android:name="io.github.libxposed.service.XposedProvider"
+            android:authorities="${applicationId}.xposedprovider"
+            android:exported="true"
+            tools:replace="android:authorities" />
 
         <activity
             android:name=".SettingsActivity"
