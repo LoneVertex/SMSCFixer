@@ -400,7 +400,11 @@ fun StatusHeaderCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (isLsposedBound) "LSPosed Active" else "Module Standalone / Service Pending",
+                        text = if (isLsposedBound) {
+                            stringResource(R.string.status_lsposed_active)
+                        } else {
+                            stringResource(R.string.status_lsposed_pending)
+                        },
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isLsposedBound) StatusSuccess else WarmAmber

@@ -47,7 +47,7 @@ final class ReflectUtils {
         if (args == null || args.length == 0) return new Class<?>[0];
         Class<?>[] types = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++) {
-            types[i] = (args[i] != null) ? args[i].getClass() : Object.class;
+            types[i] = (args[i] != null) ? args[i].getClass() : null;
         }
         return types;
     }
@@ -88,7 +88,9 @@ final class ReflectUtils {
 
     private static boolean isCompatible(Class<?>[] methodParams, Class<?>[] argParams) {
         for (int i = 0; i < methodParams.length; i++) {
-            if (argParams[i] != null && !isAssignable(methodParams[i], argParams[i])) {
+            if (argParams[i] == null) {
+                if (methodParams[i].isPrimitive()) return false;
+            } else if (!isAssignable(methodParams[i], argParams[i])) {
                 return false;
             }
         }

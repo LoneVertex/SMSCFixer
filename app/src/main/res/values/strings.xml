@@ -51,4 +51,6 @@
     <string name="module_legacy_storage">World-Readable Storage</string>
     <string name="add_package_label">Add Custom Target Package</string>
     <string name="add_action">Add</string>
+    <string name="status_lsposed_active">LSPosed Active</string>
+    <string name="status_lsposed_pending">Module Standalone / Service Pending</string>
 </resources>

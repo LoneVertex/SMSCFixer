@@ -34,6 +34,10 @@ public class ReflectUtilsTest {
         public String overloaded(Integer number) {
             return "Integer: " + number;
         }
+
+        public String consumeString(String text) {
+            return "Consumed: " + text;
+        }
     }
 
     @Test
@@ -85,5 +89,12 @@ public class ReflectUtilsTest {
         } catch (RuntimeException expected) {
             // Success
         }
+    }
+
+    @Test
+    public void testNullArgumentResolution() {
+        DummyTarget target = new DummyTarget();
+        assertEquals("Consumed: null", ReflectUtils.callMethod(target, "consumeString", (Object) null));
+        assertEquals("Hello, null", ReflectUtils.callStaticMethod(DummyTarget.class, "greeting", (Object) null));
     }
 }
