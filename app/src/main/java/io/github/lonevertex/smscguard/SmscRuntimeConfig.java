@@ -14,20 +14,9 @@ final class SmscRuntimeConfig {
         return buildConfig(
                 primarySmsc,
                 secondarySmsc,
-                new LinkedHashSet<>(java.util.Arrays.asList(
-                        "com.google.android.apps.messaging",
-                        "com.android.mms"
-                )),
+                SmscConfigSchema.defaultTargetPackages(),
                 SmscConfigSchema.CURRENT_VERSION
         );
-    }
-
-    static SmscSelectionConfig buildConfig(
-            String primarySmsc,
-            String secondarySmsc,
-            Set<String> targetPackages
-    ) {
-        return buildConfig(primarySmsc, secondarySmsc, targetPackages, SmscConfigSchema.CURRENT_VERSION);
     }
 
     static SmscSelectionConfig buildConfig(
@@ -37,7 +26,7 @@ final class SmscRuntimeConfig {
             int configVersion
     ) {
         Set<String> effectiveTargets = targetPackages == null || targetPackages.isEmpty()
-                ? SmscConfigSchema.parseAndNormalizeTargetPackages(SmscConfigSchema.DEFAULT_TARGET_PACKAGES_CSV)
+                ? SmscConfigSchema.defaultTargetPackages()
                 : new LinkedHashSet<>(targetPackages);
         return new SmscSelectionConfig(
                 configVersion,
@@ -62,17 +51,7 @@ final class SmscRuntimeConfig {
     }
 
     static Set<String> parsePackages(String csv) {
-        if (csv == null || csv.trim().isEmpty()) {
-            return Collections.emptySet();
-        }
-        Set<String> out = new LinkedHashSet<>();
-        for (String item : csv.split(",")) {
-            String pkg = item.trim();
-            if (!pkg.isEmpty()) {
-                out.add(pkg);
-            }
-        }
-        return out;
+        return SmscConfigSchema.parsePackages(csv);
     }
 
     private static Map<String, String> defaultMccMncFallbacks(String primary, String secondary) {

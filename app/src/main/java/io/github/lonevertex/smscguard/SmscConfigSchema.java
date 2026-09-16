@@ -43,13 +43,27 @@ final class SmscConfigSchema {
         return value != null && SMSC_PATTERN.matcher(value).matches();
     }
 
+    static Set<String> parsePackages(String csv) {
+        if (csv == null || csv.trim().isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        Set<String> out = new LinkedHashSet<>();
+        for (String item : csv.split(",")) {
+            String pkg = item.trim();
+            if (!pkg.isEmpty()) {
+                out.add(pkg);
+            }
+        }
+        return out;
+    }
+
     /**
      * Produces a non-empty, validated scope for runtime use. Values supplied by an external or
      * manually edited preference file are treated as untrusted; invalid-only values fall back to
      * the known-safe default scope rather than enabling all packages.
      */
     static Set<String> parseAndNormalizeTargetPackages(String csv) {
-        Set<String> parsed = SmscRuntimeConfig.parsePackages(csv);
+        Set<String> parsed = parsePackages(csv);
         if (parsed.isEmpty()) {
             return defaultTargetPackages();
         }
@@ -70,7 +84,7 @@ final class SmscConfigSchema {
         if (csv == null || csv.trim().isEmpty()) {
             return true;
         }
-        Set<String> parsed = SmscRuntimeConfig.parsePackages(csv);
+        Set<String> parsed = parsePackages(csv);
         if (parsed.isEmpty()) {
             return false;
         }
@@ -86,8 +100,8 @@ final class SmscConfigSchema {
         return String.join(",", parseAndNormalizeTargetPackages(csv));
     }
 
-    private static Set<String> defaultTargetPackages() {
-        return new LinkedHashSet<>(SmscRuntimeConfig.parsePackages(DEFAULT_TARGET_PACKAGES_CSV));
+    static Set<String> defaultTargetPackages() {
+        return new LinkedHashSet<>(parsePackages(DEFAULT_TARGET_PACKAGES_CSV));
     }
 
     private static boolean isValidPackageName(String pkg) {

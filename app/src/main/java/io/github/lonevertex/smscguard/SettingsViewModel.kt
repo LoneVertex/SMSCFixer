@@ -22,10 +22,7 @@ data class SettingsUiState(
     val isPrimaryValid: Boolean = true,
     val secondarySmsc: String = SmscGuardModule.DEFAULT_SMSC_SECONDARY,
     val isSecondaryValid: Boolean = true,
-    val targetPackages: Set<String> = setOf(
-        "com.google.android.apps.messaging",
-        "com.android.mms"
-    ),
+    val targetPackages: Set<String> = SmscConfigSchema.defaultTargetPackages(),
     val customPackageInput: String = "",
     val isCustomPackageValid: Boolean = true,
     val isDefaultScopeActive: Boolean = true,
@@ -50,7 +47,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     companion object {
-        val DEFAULT_PACKAGES = setOf("com.google.android.apps.messaging", "com.android.mms")
+        val DEFAULT_PACKAGES: Set<String> = SmscConfigSchema.defaultTargetPackages()
         const val DEFAULT_PRIMARY = SmscGuardModule.DEFAULT_SMSC_PRIMARY
         const val DEFAULT_SECONDARY = SmscGuardModule.DEFAULT_SMSC_SECONDARY
     }
