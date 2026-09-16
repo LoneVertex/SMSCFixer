@@ -38,7 +38,7 @@ data class SettingsUiState(
     val status: UiStatus? = null,
     val sanitizedRoutingDecision: String? = null,
     val simulationStep: Int = 0,
-    val appVersion: String = "v2.0.0",
+    val appVersion: String = "v2.1.0",
     val isReady: Boolean = true
 )
 

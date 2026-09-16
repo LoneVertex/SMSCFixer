@@ -12,8 +12,8 @@ body:
     id: app_version
     attributes:
       label: SMSC Guard Version
-      description: What version of SMSC Guard are you running? (e.g., v2.0.0)
-      placeholder: v2.0.0
+      description: What version of SMSC Guard are you running? (e.g., v2.1.0)
+      placeholder: v2.1.0
     validations:
       required: true
   - type: input

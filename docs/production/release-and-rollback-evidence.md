@@ -2,7 +2,7 @@
 
 This worksheet is completed by the controlled signing owner and test operator. It does not authorize a release, deploy an APK, or send an SMS message by itself.
 
-> **Repository status:** This is a reusable evidence template, so its operator-completed fields remain blank in source control for future releases. The official SMSC Guard v2.0.0 implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) and published as an official signed release (`smscguard-v2.0.0-release-signed.apk`) with verified RSA-4096 cryptographic signatures and SHA-256 checksums recorded in [`docs/releases/v2.0.0-identity-evidence.md`](../releases/v2.0.0-identity-evidence.md).
+> **Repository status:** This is a reusable evidence template, so its operator-completed fields remain blank in source control for future releases. The official SMSC Guard v2.1.0 implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) and published as an official signed release (`smscguard-v2.1.0-release-signed.apk`) with verified RSA-4096 cryptographic signatures and SHA-256 checksums recorded in [`docs/releases/v2.1.0-identity-evidence.md`](../releases/v2.1.0-identity-evidence.md).
 
 ## Candidate identity
 

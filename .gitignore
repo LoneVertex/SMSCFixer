@@ -18,6 +18,8 @@ captures/
 *.class
 output.json
 output-metadata.json
+*-release-candidate.json
+SHA256SUMS.txt
 .kotlin/
 
 # ------------------------------------------------------------------------------

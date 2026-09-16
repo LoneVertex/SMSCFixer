@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/LoneVertex/SMSCFixer/actions/workflows/ci.yml"><img src="https://github.com/LoneVertex/SMSCFixer/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
-  <a href="https://github.com/LoneVertex/SMSCFixer/releases/latest"><img src="https://img.shields.io/badge/Release-v2.0.0-0080FF?logo=github" alt="Latest Release: v2.0.0" /></a>
+  <a href="https://github.com/LoneVertex/SMSCFixer/releases/latest"><img src="https://img.shields.io/badge/Release-v2.1.0-0080FF?logo=github" alt="Latest Release: v2.1.0" /></a>
   <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Android-API%2021--36-3DDC84?logo=android&logoColor=white" alt="Android API 21-36" /></a>
   <a href="https://github.com/libxposed"><img src="https://img.shields.io/badge/libxposed-API%20102-8A2BE2" alt="Libxposed API 102" /></a>
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" /></a>
@@ -61,7 +61,7 @@ Custom carrier addresses can be entered directly in the settings dashboard using
 2. An active LSPosed framework installation (e.g., [LSPosed](https://github.com/LSPosed/LSPosed) or modern Zygisk-based variants).
 
 ### Quick Start
-1. Download the latest official signed release APK (`smscguard-v2.0.0-release-signed.apk`) from [GitHub Releases](https://github.com/LoneVertex/SMSCFixer/releases/latest).
+1. Download the latest official signed release APK (`smscguard-v2.1.0-release-signed.apk`) from [GitHub Releases](https://github.com/LoneVertex/SMSCFixer/releases/latest).
 2. Install the APK onto your device.
 3. Open **LSPosed Manager**, navigate to the **Modules** tab, and toggle **SMSC Guard** ON.
 4. LSPosed Manager will automatically detect the declared `xposedscope` and pre-select the recommended applications (`System Framework (android)`, `Google Messages (com.google.android.apps.messaging)`, and `MMS (com.android.mms)`). Confirm the scope or add custom OEM messaging packages if applicable.
@@ -77,7 +77,7 @@ All official production builds are signed using a dedicated 4096-bit RSA release
 
 ```bash
 # Verify signature schemes (v1, v2, v3) and certificate fingerprint
-apksigner verify --verbose --print-certs smscguard-v2.0.0-release-signed.apk
+apksigner verify --verbose --print-certs smscguard-v2.1.0-release-signed.apk
 ```
 
 **Official Signer Certificate Identity:**

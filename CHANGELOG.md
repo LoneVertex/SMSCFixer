@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-09-16
+
+### Added
+- **"The Routed Shield" Launcher Identity:** Production-ready Adaptive Launcher Icon and Material You Themed Icon (`ic_launcher_monochrome`) conforming to Android API 36 adaptive icon guidelines with 108dp viewport and safe-zone circular masking.
+- **Canonical LSPosed Scope Declaration:** Configured `<meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />` in `AndroidManifest.xml` with companion `@array/xposed_scope` (`android`, `com.google.android.apps.messaging`, `com.android.mms`) to enable automated module target recommendations in LSPosed Manager.
+- **Open Source Community Architecture:** Added full open source standards including `CONTRIBUTING.md` developer guide, GitHub Issue Forms (`bug_report.yml`, `feature_request.yml`, `device_compatibility.yml`), and CI-enforced Pull Request Template.
+
+### Changed
+- **Config Schema Decoupling:** Centralized default scope target resolution into `SmscConfigSchema.defaultTargetPackages()`, breaking circular compile dependencies from `SmscRuntimeConfig`.
+- **Encapsulated Preferences Persistence:** Migrated raw `SharedPreferences.Editor` manipulations out of `SettingsViewModel` into `PreferencesManager.saveSettings()`.
+- **UI Localization:** Extracted all user-facing action and status feedback strings to `res/values/strings.xml` with dynamic format argument support in `UiStatus.ResourceMessage`.
+
+### Refactored
+- **Anti-Koshary Architecture Hardening:** Flattened nested try-catch reflection logic in `RoutingSignalResolver` into modular discrete helper functions (`getTelephonyManager`, `resolveScopedTelephony`, `readSimOperatorName`, `readSimOperator`).
+- **Dead Code Pruning:** Purged deprecated `isLsposedManaged` and `makePrefsReadableForXposed()` shims and pruned obsolete 5-arg constructors in `ConfigurationRepository`.
+- **Build Configuration:** Documented upstream `libxposed:service:102.0.0` `minCompileSdk=37` mitigation via `checkAarMetadata` suppression for Android Platform API 36 builds.
+
+---
+
 ## [2.0.0] - 2026-09-16
 
 ### Added
@@ -40,3 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Slot-based SMSC routing for dual-SIM devices with default Egyptian carrier configurations (Vodafone Egypt and Orange Egypt).
 - Fail-safe preservation logic when carrier signals or slot evidence are ambiguous.
 - XML-based configuration activity for custom SMSC numbers.
+
+[2.1.0]: https://github.com/LoneVertex/SMSCFixer/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/LoneVertex/SMSCFixer/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/LoneVertex/SMSCFixer/releases/tag/v1.0.0
