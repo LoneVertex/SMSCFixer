@@ -2,10 +2,8 @@ package io.github.lonevertex.smscguard;
 
 import android.app.Application;
 
-import de.robv.android.xposed.XposedHelpers;
-
 /**
- * Android/Xposed adapter for subscription, slot, and carrier signals. It deliberately returns an
+ * Android reflection adapter for subscription, slot, and carrier signals. It deliberately returns an
  * incomplete signal set on reflection failure; policy then preserves the original SMSC.
  */
 final class RoutingSignalResolver {
@@ -97,14 +95,14 @@ final class RoutingSignalResolver {
             return new CarrierInfo(carrierName, mccMnc);
         }
         try {
-            Object telephony = XposedHelpers.callMethod(application, "getSystemService", "phone");
+            Object telephony = ReflectUtils.callMethod(application, "getSystemService", "phone");
             if (telephony == null) {
                 return new CarrierInfo(carrierName, mccMnc);
             }
             Object scopedTelephony = telephony;
             if (subscriptionId >= 0) {
                 try {
-                    Object candidate = XposedHelpers.callMethod(telephony, "createForSubscriptionId", subscriptionId);
+                    Object candidate = ReflectUtils.callMethod(telephony, "createForSubscriptionId", subscriptionId);
                     if (candidate != null) {
                         scopedTelephony = candidate;
                     }
@@ -113,7 +111,7 @@ final class RoutingSignalResolver {
                 }
             }
             try {
-                Object resultName = XposedHelpers.callMethod(scopedTelephony, "getSimOperatorName");
+                Object resultName = ReflectUtils.callMethod(scopedTelephony, "getSimOperatorName");
                 if (resultName instanceof String) {
                     carrierName = (String) resultName;
                 }
@@ -121,7 +119,7 @@ final class RoutingSignalResolver {
                 logReflectionFailure("carrier:get_name", error);
             }
             try {
-                Object resultMccMnc = XposedHelpers.callMethod(scopedTelephony, "getSimOperator");
+                Object resultMccMnc = ReflectUtils.callMethod(scopedTelephony, "getSimOperator");
                 if (resultMccMnc instanceof String) {
                     mccMnc = (String) resultMccMnc;
                 }
@@ -137,7 +135,7 @@ final class RoutingSignalResolver {
     private Integer callSubscriptionSlotMethod(String methodName, int subscriptionId) {
         try {
             Class<?> subscriptionManager = Class.forName("android.telephony.SubscriptionManager");
-            Object result = XposedHelpers.callStaticMethod(subscriptionManager, methodName, subscriptionId);
+            Object result = ReflectUtils.callStaticMethod(subscriptionManager, methodName, subscriptionId);
             if (result instanceof Integer) {
                 int slot = (Integer) result;
                 return slot >= 0 ? slot : null;
@@ -151,7 +149,7 @@ final class RoutingSignalResolver {
     private Object getCurrentApplication() {
         try {
             Class<?> activityThread = Class.forName("android.app.ActivityThread");
-            return XposedHelpers.callStaticMethod(activityThread, "currentApplication");
+            return ReflectUtils.callStaticMethod(activityThread, "currentApplication");
         } catch (Throwable error) {
             logReflectionFailure("current_application", error);
             return null;
@@ -163,7 +161,7 @@ final class RoutingSignalResolver {
             return null;
         }
         try {
-            Object value = XposedHelpers.callMethod(target, methodName);
+            Object value = ReflectUtils.callMethod(target, methodName);
             if (value instanceof Integer) {
                 int result = (Integer) value;
                 return result >= 0 ? result : null;
@@ -179,7 +177,7 @@ final class RoutingSignalResolver {
             return null;
         }
         try {
-            Object value = XposedHelpers.getObjectField(target, fieldName);
+            Object value = ReflectUtils.getObjectField(target, fieldName);
             if (value instanceof Integer) {
                 int result = (Integer) value;
                 return result >= 0 ? result : null;
