@@ -88,12 +88,12 @@ Signer #1 certificate SHA-256: 80:5F:3E:1F:6C:04:E5:A2:0F:10:20:54:85:E7:E5:F0:7
 Signer #1 certificate SHA-1:   DB:13:52:64:A2:8F:40:C7:7A:DE:E4:15:26:E2:11:F3:95:14:C0:C4
 ```
 
-### v2.0.0 Artifact Checksums
+### v2.1.0 Artifact Checksums
 ```text
-1c73b8d85deca0dabc55e815cbdc2dfcc07b2457e1d45f88c17b107134238104  smscguard-v2.0.0-release-signed.apk
-50cc93ecbe33cb439c4ffc2a347301e57d90b9c373a9016b9dc9205e0b5e4480  app-release-unsigned.apk
-47538f020d8a023327d193c80dfbd92a01738c098c6e5f305c7f91e6ccb6b9ed  smscguard-v2.0.0-debug.apk
-78e8e5ca0ac5dde30fb17c336a1e5691add256acf8e906771c4b6fee6fec8fe7  smscguard-release-candidate.json
+a2ba366c924892d5350626c59301bdc5eec6f57957e178d6a68b91450fc43bda  smscguard-v2.1.0-release-signed.apk
+d8765a6adacfe309058491755caaf35ed20165c482545b970049359bedaae06f  app-release-unsigned.apk
+932dcfdad129fd70b74f46c940c0838891a3323c551cb8d04c03f7f34f8de949  smscguard-v2.1.0-debug.apk
+cc153281882b5a61f82c135a5efa73caa3a6357e7158d8ef9054c2390692f9db  smscguard-release-candidate.json
 ```
 
 ---
