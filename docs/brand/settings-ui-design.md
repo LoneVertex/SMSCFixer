@@ -2,119 +2,83 @@
 
 ## Purpose
 
-SMSC Guard v2.0.0 presents a narrow, safety-first configuration surface for an LSPosed module. The settings redesign replaces the previous utilitarian form treatment with a **dark-technical, Android-native visual system** that makes routing controls, target scope, diagnostics, actions, and live configuration status easier to distinguish without changing the module’s behavior.
+SMSC Guard v2.0.0 features a safety-first, dark-technical configuration dashboard engineered using **Jetpack Compose** and **Material 3 (Material You)**. The settings interface provides clear visibility into active LSPosed framework connectivity, per-slot SMSC configurations, target package scoping, and redacted diagnostics while maintaining strict zero-PII security boundaries.
 
-> **Design principle:** Visual confidence must not imply broader authority. The interface explains and configures guarded routing behavior; it does not claim that it can detect every carrier, device, or LSPosed condition.
+> **Design Principle:** Visual clarity and confidence must not compromise telephony stability. The interface configures and monitors guarded routing behavior; it does not claim to detect every carrier, device, or LSPosed condition.
 
-The design uses native Android XML resources and the existing platform Material theme. It deliberately introduces **no Material Components, Compose, telemetry, navigation, network access, or new persistence state**.
+---
 
-## Design Read
+## Architecture & Technology Baseline
 
-| Dimension | Decision |
+| Dimension | Specification |
 |---|---|
-| Product category | Rooted power-user safety utility |
-| Visual language | Restrained dark-technical, trust-first, Android-native |
-| Design variance | 4 of 10: structured and deliberate rather than expressive |
-| Motion | 2 of 10: native pressed feedback only; no decorative animation |
-| Information density | 5 of 10: grouped configuration detail with readable breathing room |
-| Platform baseline | Native Android views, API 21 minimum, `Theme.Material.NoActionBar` |
+| Product Category | Rooted Android Telephony & Security Utility |
+| UI Framework | **Jetpack Compose** with **Material 3** (`androidx.compose.material3:material3`) |
+| Platform Baseline | Android API 21 (minSdk 21) to Android API 36 (compileSdk 36, targetSdk 36) |
+| Architecture Pattern | Unidirectional Data Flow (UDF) via `SettingsViewModel` and `StateFlow<SettingsUiState>` |
+| IPC Mechanism | Real-time `XposedServiceHelper` listener and `RemotePreferences` synchronization |
+| Visual Language | Dark-technical, restrained, high-contrast, telemetry-aware |
 
-## Token System
+---
 
-The UI derives its identity from the v2 SMSC Guard launcher icon: midnight navy for the environment, electric teal for verified action and focus, and amber only for diagnostic attention.
+## Screen Architecture & Components
 
-| Token | Role | Value / behavior |
-|---|---|---|
-| `sg_background` | App canvas and system-bar base | `#07152B` midnight navy |
-| `sg_surface` | Section group surface | `#0D203A` deep blue slate |
-| `sg_field` | Editable field surface | `#0A1B31` blue-black |
-| `sg_teal` | Primary action and focused field state | `#14C8D1` electric teal |
-| `sg_amber` | Diagnostics attention cue only | `#FFB547` amber |
-| `sg_text_primary` | Titles, labels, primary control text | cool white |
-| `sg_text_secondary` | Supporting explanatory copy | cool blue-grey |
-| `sg_text_muted` | Low-emphasis helper text and hints | subdued blue-grey |
-| `sg_status_surface` | Persistent status panel | dark, bounded informational surface |
+The interface is structured into modular Compose components living under `io.github.lonevertex.smscguard.ui.components`:
 
-The shape rule is equally deliberate: **16dp** section groups, **12dp** fields and action controls, and no decorative pill proliferation. The UI remains flat enough to feel native while using restrained boundaries to make a safety-critical form scannable.
-
-## Screen Architecture
-
-| Area | Visual treatment | Behavior preserved |
-|---|---|---|
-| Branded header | Launcher icon, context label, product title, concise routing-safety framing | No navigation or new state |
-| Routing configuration | Grouped surface for primary and secondary SMSC fields, labels above inputs, factual helper copy | Phone input types, existing view IDs, validation, normalization, and fallback semantics |
-| Target scope | Separate surface clarifying the explicit package-scope requirement | Existing package field, package validation, and normalized storage |
-| Diagnostics | Clearly labelled checkbox with privacy-aware helper copy and reserved amber cue | Existing opt-in boolean preference and logging semantics |
-| Action stack | Teal full-width save action followed by outlined self-check action | Existing IDs, listeners, disabled-save behavior, async save thread, and self-check logic |
-| Status and safety note | Persistent low-emphasis status surface and preserve-on-uncertainty explanation | Existing `statusText` ID, polite live-region behavior, and status announcements |
-
-The form remains inside a vertically scrolling root so it remains reachable with the soft keyboard and on compact devices. Every interactive control retains at least a 48dp minimum height.
-
-## Accessibility and Safety Preservation
-
-The redesign retains explicit `labelFor` associations for the three editable fields and preserves a polite `accessibilityLiveRegion` on `statusText`. The primary and secondary actions have distinct visual hierarchy and explicit text labels. Diagnostics is understandable through written labels and helper copy; amber is a supplementary attention cue, not the only communication channel.
-
-All user-facing explanatory copy is scoped to known behavior. In particular, the terminal safety note reinforces the routing policy:
-
-> Unknown or conflicting routing evidence preserves the original SMSC.
-
-The redesign does **not** surface raw SMSC values outside the user-controlled input fields and does not change the module’s existing diagnostic privacy boundary.
-
-## Implementation Artifacts
-
-| Artifact | Purpose |
-|---|---|
-| `res/values/colors.xml` | Opaque SMSC Guard color tokens |
-| `res/values/styles.xml` | Native app theme and `TextAppearance.SmscGuard.*` typography hierarchy |
-| `res/values-v23/styles.xml` | API 23+ dark status-bar icon behavior |
-| `res/values-v27/styles.xml` | API 27+ dark navigation-bar icon behavior |
-| `res/drawable/bg_section.xml` | Section surface treatment |
-| `res/drawable/bg_input.xml` | Field default and focused states |
-| `res/drawable/bg_primary_button.xml` | Enabled, pressed, and disabled save action states |
-| `res/drawable/bg_secondary_button.xml` | Secondary self-check action states |
-| `res/drawable/bg_status.xml` | Persistent configuration-status panel |
-| `res/layout/activity_settings.xml` | Redesigned visual hierarchy with retained runtime IDs |
-| `docs/brand/assets/smsc-guard-settings-v2-mockup.png` | Visual mockup of the design direction; not a device screenshot |
-
-## Automated Validation Evidence
-
-The redesign was validated locally with the following full quality gate using Java 17:
-
-```bash
-JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
-PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \
-./gradlew --no-daemon clean lint test assembleDebug assembleRelease assembleDebugAndroidTest
+```text
+SettingsDashboard (Root Scaffold)
+├── StatusHeaderCard
+│   ├── App Branding & Icon
+│   ├── LSPosed Active / Service Pending Telemetry Badge
+│   └── API Version / Architecture Indicator
+├── SlotRoutingCard
+│   ├── Slot 1 SMSC Input Field (E.164 Strict Validation)
+│   ├── Slot 2 SMSC Input Field (E.164 Strict Validation)
+│   └── Helper Text & Canonical Carrier Normalization
+├── TargetScopeSection
+│   ├── Explanatory Guidance on Process Scoping
+│   ├── Active Target Package Chips (Removable)
+│   └── Add Custom Package Dialog / Action
+├── DiagnosticsSection
+│   ├── Redacted Diagnostics Toggle
+│   ├── Privacy Warning & Zero-PII Guarantee
+│   └── Test Hook Chain / Self-Check Action
+└── Action Bar & Persistent Status Bar
+    ├── Save Configuration Action (Full-width Teal)
+    └── Live Status Announcement Panel
 ```
 
-The quality gate completed successfully after two compatibility-only fixes: an explicit `TextAppearance.SmscGuard` base style for Android dotted-style inheritance and version-qualified system-bar theme resources for attributes introduced after API 21. The project retains its documented AGP 8.4 / compileSdk 36 warning; this is a pre-existing toolchain compatibility notice, not a redesign failure.
+---
 
-The packaged debug candidate was inspected and reports the expected v2 identity.
+## Design Tokens & Palette
 
-| Package check | Verified value |
-|---|---|
-| Application ID | `io.github.lonevertex.smscguard` |
-| Version code | `2000000` |
-| Version name | `2.0.0` |
-| Application label | `SMSC Guard` |
-| Minimum SDK | `21` |
-| Target SDK | `36` |
-| Launcher icon | Adaptive `ic_launcher.xml` resource |
-| Application theme | `style/AppTheme` |
+The design is anchored in a cyber-technical palette optimized for dark system themes:
 
-Instrumentation coverage asserts that all seven settings controls remain resolvable, that the live status region remains polite, and that the primary and secondary action labels and initial status copy are present. JVM tests remain responsible for routing, configuration normalization, package scoping, cache, and fallback-policy behavior.
+| Token | Role | Hex Value |
+|---|---|---|
+| `Primary` / `Teal` | Primary brand accent, verified status, active buttons | `#14C8D1` |
+| `Background` | Deep canvas base | `#07152B` |
+| `Surface` | Grouped card surface | `#0D203A` |
+| `SurfaceVariant` | Secondary surface, input field background | `#0A1B31` |
+| `StatusActive` | Connected LSPosed framework status badge | `#14C8D1` |
+| `StatusPending` | Pending / standalone service status badge | `#FFB547` (Amber) |
+| `TextPrimary` | High-contrast cool white | `#F0F4F8` |
+| `TextSecondary` | Readable cool blue-grey | `#94A3B8` |
 
-## Deferred Controlled-Device Checks
+---
 
-No rooted-device testing, LSPosed activation, device installation, carrier interaction, or SMS transmission was performed for this redesign. A separately authorized controlled-device test should verify the following before operational deployment:
+## Reactive Telemetry & Live State Binding
 
-1. Render the screen on small and large Android devices at the supported API range.
-2. Confirm keyboard navigation, visible field focus treatment, and reachable lower actions.
-3. Confirm TalkBack field labels, diagnostic explanation, and polite status announcements.
-4. Confirm invalid SMSC and invalid package-list errors retain their existing location and wording.
-5. Confirm valid save, the transient disabled-save interval, self-check outcomes, and reboot/restart reminder behavior.
-6. Confirm LSPosed can read the expected managed preference configuration under the project’s documented fallback behavior.
-7. Confirm no routing action occurs where signal evidence is unknown or conflicting.
+`SettingsViewModel` observes `PreferencesManager.isLsposedBound` and `PreferencesManager.frameworkInfo`. When the LSPosed service is actively connected:
+- The header displays a green/teal **LSPosed Active** badge with the framework version (e.g. `LSPosed 1.9.3 (102)`).
+- When operating in standalone mode or before the service binds, it displays a polite amber **Module Standalone / Service Pending** badge.
+- Telemetry badge strings are localized via Android string resources (`R.string.status_lsposed_active`, `R.string.status_lsposed_pending`).
 
-## Scope Boundary
+---
 
-This document records a UI-only change. It does not authorize signing, stable-release deployment, installation, configuration scoping, rooting changes, carrier changes, or SMS transmission. The corresponding code is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) and included in the [public v2.0.0 pre-release](https://github.com/LoneVertex/SMSCFixer/releases/tag/v2.0.0); the pre-release does not authorize stable production deployment.
+## Accessibility & Safety Preservation
+
+1. **Touch Targets:** All interactive elements (save button, self-check button, package chip delete actions) maintain at least a 48dp touch target.
+2. **Strict Validation:** Input fields validate against strict E.164 international phone number formats (`+[1-9][0-9]{1,14}`). Invalid input disables the save action and renders assistive error messages.
+3. **Fail-Safe Preserving:** Explanatory text clearly communicates that unknown or contradictory signals preserve the system's original SMSC without blocking delivery.
+4. **Privacy:** No raw SMS messages, recipient numbers, or personal data are ever surfaced or stored.
