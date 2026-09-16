@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="1920" height="1920">
+    <!-- Background Canvas Base (Midnight Navy) -->
+    <rect width="108" height="108" fill="#07152B"/>
+
+    <!-- Concentric Tonal Surface Circles -->
+    <circle cx="54" cy="54" r="36" fill="#0E223D"/>
+    <circle cx="54" cy="54" r="27" fill="#142C4C"/>
+
+    <!-- The Routed Shield Base & Border -->
+    <path d="M 54,25 C 63,25 71,28 76,32 C 76.5,45 74.5,58 68,69 C 63.5,76 58,80 54,82 C 50,80 44.5,76 40,69 C 33.5,58 31.5,45 32,32 C 37,28 45,25 54,25 Z"
+          fill="#0D223F" stroke="#14C8D1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- SMS Chat Bubble -->
+    <path d="M 44,37 H 64 C 66.8,37 69,39.2 69,42 V 53 C 69,55.8 66.8,58 64,58 H 51 L 42.5,64.5 C 41.5,65.2 40.5,64.5 40.8,63.5 L 42,58 C 39.8,57.5 39,55.5 39,53 V 42 C 39,39.2 41.2,37 44,37 Z"
+          fill="#132F54" stroke="#234A75" stroke-width="1.5" stroke-linejoin="round"/>
+
+    <!-- Slot 0 Primary Routing Vector (Vodafone Teal: Dot + Arrow) -->
+    <circle cx="45" cy="44" r="1.5" fill="#14C8D1"/>
+    <line x1="45" y1="44" x2="58" y2="44" stroke="#14C8D1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <polygon points="57,41.5 63,44 57,46.5" fill="#14C8D1"/>
+
+    <!-- Slot 1 Secondary Routing Vector (Orange Amber: Dot + Arrow) -->
+    <circle cx="45" cy="51" r="1.5" fill="#FF9800"/>
+    <line x1="45" y1="51" x2="58" y2="51" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <polygon points="57,48.5 63,51 57,53.5" fill="#FF9800"/>
+
+    <!-- Dual SIM Routing Hub Nodes at Shield Base -->
+    <line x1="48" y1="65" x2="48" y2="70" stroke="#14C8D1" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="48" cy="72" r="2.2" fill="#14C8D1"/>
+    <line x1="60" y1="65" x2="60" y2="70" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="60" cy="72" r="2.2" fill="#FF9800"/>
+</svg>
