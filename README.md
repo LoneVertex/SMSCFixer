@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/LoneVertex/SMSCFixer/actions/workflows/ci.yml"><img src="https://github.com/LoneVertex/SMSCFixer/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
-  <a href="https://github.com/LoneVertex/SMSCFixer/releases/latest"><img src="https://img.shields.io/github/v/release/LoneVertex/SMSCFixer?color=0080FF&label=Release&logo=github" alt="Latest Release" /></a>
+  <a href="https://github.com/LoneVertex/SMSCFixer/releases/latest"><img src="https://img.shields.io/badge/Release-v2.0.0-0080FF?logo=github" alt="Latest Release: v2.0.0" /></a>
   <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Android-API%2021--36-3DDC84?logo=android&logoColor=white" alt="Android API 21-36" /></a>
   <a href="https://github.com/libxposed"><img src="https://img.shields.io/badge/libxposed-API%20102-8A2BE2" alt="Libxposed API 102" /></a>
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" /></a>
@@ -64,11 +64,7 @@ Custom carrier addresses can be entered directly in the settings dashboard using
 1. Download the latest official signed release APK (`smscguard-v2.0.0-release-signed.apk`) from [GitHub Releases](https://github.com/LoneVertex/SMSCFixer/releases/latest).
 2. Install the APK onto your device.
 3. Open **LSPosed Manager**, navigate to the **Modules** tab, and toggle **SMSC Guard** ON.
-4. Ensure the module scope includes the following applications:
-   - `System Framework` (`android`)
-   - `Phone and Messaging Storage` (`com.android.phone`)
-   - `Google Messages` (`com.google.android.apps.messaging`)
-   - `MMS Service` (`com.android.mms.service` or OEM messaging app)
+4. LSPosed Manager will automatically detect the declared `xposedscope` and pre-select the recommended applications (`System Framework (android)`, `Google Messages (com.google.android.apps.messaging)`, and `MMS (com.android.mms)`). Confirm the scope or add custom OEM messaging packages if applicable.
 5. Open **SMSC Guard** from your app launcher.
 6. Verify the **LSPosed Active** status badge in the header, review your per-slot SMSC numbers, and tap **Save Configuration**.
 7. Reboot your device or restart the scoped processes to activate hooks.

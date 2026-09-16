@@ -145,4 +145,35 @@ public class SmscGuardConfigTest {
         assertTrue(snapshot.selectionConfig.targetPackages.contains("com.custom.sms"));
         assertTrue(snapshot.diagnosticsEnabled);
     }
+
+    @Test
+    public void xposedScopeArrayDeclaresCanonicalTargetPackages() throws Exception {
+        java.io.File arraysFile = new java.io.File("src/main/res/values/arrays.xml");
+        if (!arraysFile.exists()) {
+            arraysFile = new java.io.File("app/src/main/res/values/arrays.xml");
+        }
+        assertTrue("arrays.xml must exist", arraysFile.exists());
+
+        javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        org.w3c.dom.Document doc = factory.newDocumentBuilder().parse(arraysFile);
+        org.w3c.dom.NodeList arrayNodes = doc.getElementsByTagName("string-array");
+
+        Set<String> scopeItems = new LinkedHashSet<>();
+        for (int i = 0; i < arrayNodes.getLength(); i++) {
+            org.w3c.dom.Element elem = (org.w3c.dom.Element) arrayNodes.item(i);
+            if ("xposed_scope".equals(elem.getAttribute("name"))) {
+                org.w3c.dom.NodeList items = elem.getElementsByTagName("item");
+                for (int j = 0; j < items.getLength(); j++) {
+                    scopeItems.add(items.item(j).getTextContent().trim());
+                }
+            }
+        }
+
+        assertTrue("xposed_scope must contain android", scopeItems.contains("android"));
+        assertTrue("xposed_scope must contain com.google.android.apps.messaging",
+                scopeItems.contains("com.google.android.apps.messaging"));
+        assertTrue("xposed_scope must contain com.android.mms",
+                scopeItems.contains("com.android.mms"));
+        assertEquals(3, scopeItems.size());
+    }
 }

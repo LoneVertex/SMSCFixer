@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Canonical LSPosed scope declaration.
+      LSPosed Manager reads this string-array to pre-select ("recommend") target applications
+      in the module scope selection screen.
+    -->
+    <string-array name="xposed_scope">
+        <item>android</item>
+        <item>com.google.android.apps.messaging</item>
+        <item>com.android.mms</item>
+    </string-array>
+</resources>

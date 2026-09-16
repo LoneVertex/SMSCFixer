@@ -69,6 +69,33 @@ public class SettingsAndManifestInstrumentedTest {
     }
 
     @Test
+    public void manifestDeclaresCanonicalXposedScope() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        PackageManager packageManager = context.getPackageManager();
+        ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
+                context.getPackageName(),
+                PackageManager.GET_META_DATA
+        );
+
+        assertNotNull("Application metadata must be present", applicationInfo.metaData);
+        assertTrue("xposedscope meta-data must be declared in AndroidManifest",
+                applicationInfo.metaData.containsKey("xposedscope"));
+
+        int scopeResId = applicationInfo.metaData.getInt("xposedscope", 0);
+        assertTrue("xposedscope must point to a valid resource ID", scopeResId != 0);
+
+        String[] scopeArray = context.getResources().getStringArray(scopeResId);
+        assertNotNull("xposedscope array must not be null", scopeArray);
+        java.util.List<String> scopeList = java.util.Arrays.asList(scopeArray);
+
+        assertTrue("xposedscope must contain android", scopeList.contains("android"));
+        assertTrue("xposedscope must contain com.google.android.apps.messaging",
+                scopeList.contains("com.google.android.apps.messaging"));
+        assertTrue("xposedscope must contain com.android.mms",
+                scopeList.contains("com.android.mms"));
+    }
+
+    @Test
     public void applicationHasDescriptionPopulated() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         PackageManager packageManager = context.getPackageManager();

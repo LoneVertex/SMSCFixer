@@ -10,7 +10,7 @@ Run the Gradle quality gates, review the validation matrix, and confirm a suppor
 
 ## Smoke validation
 
-Scope LSPosed to `android` and the intended messaging package, reboot or restart scoped processes, and run the smoke test once per routing case. For example, use `TEST_CASE_ID=D-02 EXPECTED_DECISION=SLOT_PRIMARY ./scripts/smoke_test_prod_like.sh` for SIM1 and `TEST_CASE_ID=D-03 EXPECTED_DECISION=SLOT_SECONDARY ./scripts/smoke_test_prod_like.sh` for SIM2. The script validates redacted decision events, not raw SMSC values. The operator must separately confirm controlled-message delivery without recording message bodies, raw destination numbers, or raw SMSC values in logs.
+Scope LSPosed to `android` and the intended messaging package (pre-selected automatically by LSPosed Manager via declared `xposedscope` metadata: `android`, `com.google.android.apps.messaging`, `com.android.mms`), reboot or restart scoped processes, and run the smoke test once per routing case. For example, use `TEST_CASE_ID=D-02 EXPECTED_DECISION=SLOT_PRIMARY ./scripts/smoke_test_prod_like.sh` for SIM1 and `TEST_CASE_ID=D-03 EXPECTED_DECISION=SLOT_SECONDARY ./scripts/smoke_test_prod_like.sh` for SIM2. The script validates redacted decision events, not raw SMSC values. The operator must separately confirm controlled-message delivery without recording message bodies, raw destination numbers, or raw SMSC values in logs.
 
 ## Staged rollout
 
