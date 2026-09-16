@@ -69,6 +69,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.8.2'
 }
 
+// Upstream libxposed:service:102.0.0 specifies minCompileSdk=37 (Baklava preview).
+// We suppress checkAarMetadata so the project compiles cleanly against stable Android API 36 (Android 15).
 tasks.matching { it.name.startsWith("check") && it.name.endsWith("AarMetadata") }.configureEach {
     enabled = false
 }

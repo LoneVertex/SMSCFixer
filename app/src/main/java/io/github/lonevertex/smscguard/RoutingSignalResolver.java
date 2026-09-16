@@ -88,48 +88,60 @@ final class RoutingSignalResolver {
     }
 
     private CarrierInfo resolveCarrierInfo(int subscriptionId) {
-        String carrierName = "";
-        String mccMnc = "";
         Object application = getCurrentApplication();
         if (!(application instanceof Application)) {
-            return new CarrierInfo(carrierName, mccMnc);
+            return new CarrierInfo("", "");
         }
+        Object telephony = getTelephonyManager(application);
+        if (telephony == null) {
+            return new CarrierInfo("", "");
+        }
+        Object scopedTelephony = resolveScopedTelephony(telephony, subscriptionId);
+        String carrierName = readSimOperatorName(scopedTelephony);
+        String mccMnc = readSimOperator(scopedTelephony);
+        return new CarrierInfo(carrierName, mccMnc);
+    }
+
+    private Object getTelephonyManager(Object application) {
         try {
-            Object telephony = ReflectUtils.callMethod(application, "getSystemService", "phone");
-            if (telephony == null) {
-                return new CarrierInfo(carrierName, mccMnc);
-            }
-            Object scopedTelephony = telephony;
-            if (subscriptionId >= 0) {
-                try {
-                    Object candidate = ReflectUtils.callMethod(telephony, "createForSubscriptionId", subscriptionId);
-                    if (candidate != null) {
-                        scopedTelephony = candidate;
-                    }
-                } catch (Throwable error) {
-                    logReflectionFailure("carrier:create_for_subscription", error);
-                }
-            }
-            try {
-                Object resultName = ReflectUtils.callMethod(scopedTelephony, "getSimOperatorName");
-                if (resultName instanceof String) {
-                    carrierName = (String) resultName;
-                }
-            } catch (Throwable error) {
-                logReflectionFailure("carrier:get_name", error);
-            }
-            try {
-                Object resultMccMnc = ReflectUtils.callMethod(scopedTelephony, "getSimOperator");
-                if (resultMccMnc instanceof String) {
-                    mccMnc = (String) resultMccMnc;
-                }
-            } catch (Throwable error) {
-                logReflectionFailure("carrier:get_operator", error);
-            }
+            return ReflectUtils.callMethod(application, "getSystemService", "phone");
         } catch (Throwable error) {
             logReflectionFailure("carrier:get_service", error);
+            return null;
         }
-        return new CarrierInfo(carrierName, mccMnc);
+    }
+
+    private Object resolveScopedTelephony(Object telephony, int subscriptionId) {
+        if (subscriptionId < 0) {
+            return telephony;
+        }
+        try {
+            Object candidate = ReflectUtils.callMethod(telephony, "createForSubscriptionId", subscriptionId);
+            return candidate != null ? candidate : telephony;
+        } catch (Throwable error) {
+            logReflectionFailure("carrier:create_for_subscription", error);
+            return telephony;
+        }
+    }
+
+    private String readSimOperatorName(Object scopedTelephony) {
+        try {
+            Object resultName = ReflectUtils.callMethod(scopedTelephony, "getSimOperatorName");
+            return resultName instanceof String ? (String) resultName : "";
+        } catch (Throwable error) {
+            logReflectionFailure("carrier:get_name", error);
+            return "";
+        }
+    }
+
+    private String readSimOperator(Object scopedTelephony) {
+        try {
+            Object resultMccMnc = ReflectUtils.callMethod(scopedTelephony, "getSimOperator");
+            return resultMccMnc instanceof String ? (String) resultMccMnc : "";
+        } catch (Throwable error) {
+            logReflectionFailure("carrier:get_operator", error);
+            return "";
+        }
     }
 
     private Integer callSubscriptionSlotMethod(String methodName, int subscriptionId) {
