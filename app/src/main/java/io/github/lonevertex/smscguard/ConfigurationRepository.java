@@ -15,11 +15,19 @@ final class ConfigurationRepository {
         }
     }
 
-    private final String modulePackage;
-    private final String prefsName;
     private final String defaultPrimarySmsc;
     private final String defaultSecondarySmsc;
     private final DiagnosticLogger logger;
+
+    ConfigurationRepository(
+            String defaultPrimarySmsc,
+            String defaultSecondarySmsc,
+            DiagnosticLogger logger
+    ) {
+        this.defaultPrimarySmsc = defaultPrimarySmsc;
+        this.defaultSecondarySmsc = defaultSecondarySmsc;
+        this.logger = logger;
+    }
 
     ConfigurationRepository(
             String modulePackage,
@@ -28,11 +36,7 @@ final class ConfigurationRepository {
             String defaultSecondarySmsc,
             DiagnosticLogger logger
     ) {
-        this.modulePackage = modulePackage;
-        this.prefsName = prefsName;
-        this.defaultPrimarySmsc = defaultPrimarySmsc;
-        this.defaultSecondarySmsc = defaultSecondarySmsc;
-        this.logger = logger;
+        this(defaultPrimarySmsc, defaultSecondarySmsc, logger);
     }
 
     Snapshot load(SharedPreferences prefs, boolean romDiagnosticsEnabled) {

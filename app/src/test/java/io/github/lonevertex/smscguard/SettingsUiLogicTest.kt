@@ -6,14 +6,11 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.regex.Pattern
 
 class SettingsUiLogicTest {
 
-    private val e164Pattern = Pattern.compile("^\\+[0-9]{5,20}$")
-
     private fun isStrictE164(value: String): Boolean {
-        return e164Pattern.matcher(value.trim()).matches()
+        return SmscConfigSchema.isStrictE164(value)
     }
 
     @Test

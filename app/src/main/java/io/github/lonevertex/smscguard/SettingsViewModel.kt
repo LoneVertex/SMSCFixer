@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.regex.Pattern
 
 sealed class UiStatus {
     data class ResourceMessage(@StringRes val resId: Int, val isError: Boolean = false) : UiStatus()
@@ -51,7 +50,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     companion object {
-        private val E164_PATTERN = Pattern.compile("^\\+[0-9]{5,20}$")
         val DEFAULT_PACKAGES = setOf("com.google.android.apps.messaging", "com.android.mms")
         const val DEFAULT_PRIMARY = SmscGuardModule.DEFAULT_SMSC_PRIMARY
         const val DEFAULT_SECONDARY = SmscGuardModule.DEFAULT_SMSC_SECONDARY
@@ -91,13 +89,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { state ->
             state.copy(
                 primarySmsc = primary,
-                isPrimaryValid = isStrictE164(primary),
+                isPrimaryValid = SmscConfigSchema.isStrictE164(primary),
                 secondarySmsc = secondary,
-                isSecondaryValid = isStrictE164(secondary),
+                isSecondaryValid = SmscConfigSchema.isStrictE164(secondary),
                 targetPackages = parsedPackages,
                 isDefaultScopeActive = isDefaultScope,
                 diagnosticsEnabled = diagnostics,
-                lsposedManagedPreferences = preferencesManager.isLsposedManaged,
+                lsposedManagedPreferences = preferencesManager.isLsposedBound.value,
                 isLsposedBound = PreferencesManager.isLsposedBound.value,
                 frameworkInfo = PreferencesManager.frameworkInfo.value,
                 status = UiStatus.ResourceMessage(R.string.settings_status_initial, isError = false)
@@ -106,11 +104,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onPrimarySmscChanged(value: String) {
-        _uiState.update { it.copy(primarySmsc = value, isPrimaryValid = isStrictE164(value)) }
+        _uiState.update { it.copy(primarySmsc = value, isPrimaryValid = SmscConfigSchema.isStrictE164(value)) }
     }
 
     fun onSecondarySmscChanged(value: String) {
-        _uiState.update { it.copy(secondarySmsc = value, isSecondaryValid = isStrictE164(value)) }
+        _uiState.update { it.copy(secondarySmsc = value, isSecondaryValid = SmscConfigSchema.isStrictE164(value)) }
     }
 
     fun resetPrimaryToDefault() {
@@ -192,11 +190,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun saveSettings() {
         val state = _uiState.value
-        if (!isStrictE164(state.primarySmsc) || !isStrictE164(state.secondarySmsc)) {
+        if (!SmscConfigSchema.isStrictE164(state.primarySmsc) || !SmscConfigSchema.isStrictE164(state.secondarySmsc)) {
             _uiState.update {
                 it.copy(
-                    isPrimaryValid = isStrictE164(state.primarySmsc),
-                    isSecondaryValid = isStrictE164(state.secondarySmsc),
+                    isPrimaryValid = SmscConfigSchema.isStrictE164(state.primarySmsc),
+                    isSecondaryValid = SmscConfigSchema.isStrictE164(state.secondarySmsc),
                     status = UiStatus.ResourceMessage(R.string.settings_validation_invalid_smsc, isError = true)
                 )
             }
@@ -221,7 +219,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
-            val (stored, readable) = withContext(Dispatchers.IO) {
+            val stored = withContext(Dispatchers.IO) {
                 val stored = prefs.edit()
                     .putInt(SmscConfigSchema.KEY_SCHEMA_VERSION, SmscConfigSchema.CURRENT_VERSION)
                     .putString(SmscConfigSchema.KEY_PRIMARY_SMSC, state.primarySmsc.trim())
@@ -229,25 +227,24 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targetsCsv)
                     .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, state.diagnosticsEnabled)
                     .commit()
-                preferencesManager.syncToRemote(prefs)
-                val readable = stored && preferencesManager.makePrefsReadableForXposed()
-                Pair(stored, readable)
+                if (stored) {
+                    preferencesManager.syncToRemote(prefs)
+                }
+                stored
             }
 
             _uiState.update {
                 it.copy(
                     isSaving = false,
-                    status = when {
-                        stored && readable -> UiStatus.ResourceMessage(R.string.settings_saved_reboot, isError = false)
-                        stored -> UiStatus.ResourceMessage(R.string.settings_saved_readability_failed, isError = true)
-                        else -> UiStatus.ResourceMessage(R.string.settings_save_failed, isError = true)
+                    status = if (stored) {
+                        UiStatus.ResourceMessage(R.string.settings_saved_reboot, isError = false)
+                    } else {
+                        UiStatus.ResourceMessage(R.string.settings_save_failed, isError = true)
                     }
                 )
             }
         }
     }
-
-    fun savePreferences() = saveSettings()
 
     fun runSelfCheck() {
         val schemaVersion = prefs.getInt(SmscConfigSchema.KEY_SCHEMA_VERSION, 0)
@@ -308,9 +305,5 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun dismissStatus() {
         _uiState.update { it.copy(status = null) }
-    }
-
-    private fun isStrictE164(value: String): Boolean {
-        return E164_PATTERN.matcher(value.trim()).matches()
     }
 }
