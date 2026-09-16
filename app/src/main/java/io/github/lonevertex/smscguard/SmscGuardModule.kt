@@ -7,6 +7,7 @@ import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface.HotReloadedParam
 import io.github.libxposed.api.XposedModuleInterface.HotReloadingParam
 import io.github.libxposed.api.XposedModuleInterface.PackageReadyParam
+import androidx.annotation.RequiresApi
 import java.lang.reflect.Method
 import java.util.Collections
 import java.util.Locale
@@ -79,7 +80,11 @@ class SmscGuardModule : XposedModule() {
             return
         }
 
-        hookSupportedSendMethods(smsManagerClass)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            hookSupportedSendMethods(smsManagerClass)
+        } else {
+            LOGGER.diagnostic("unsupported_sdk_version", "sdk=" + Build.VERSION.SDK_INT)
+        }
     }
 
     override fun onHotReloading(param: HotReloadingParam): Boolean {
@@ -97,6 +102,7 @@ class SmscGuardModule : XposedModule() {
         LOGGER.setDiagnosticsEnabled(snapshot.diagnosticsEnabled)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun hookSupportedSendMethods(clazz: Class<*>): Int {
         var hookedCount = 0
         val seenSignatures = HashSet<String>()
