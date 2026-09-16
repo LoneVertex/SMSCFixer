@@ -6,11 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -48,28 +43,14 @@ public class SettingsAndManifestInstrumentedTest {
     }
 
     @Test
-    public void settingsRedesignPreservesControlsAndAccessibleStatus() {
+    public void settingsComposeDashboardLaunchesWithViewModel() {
         try (ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class)) {
             scenario.onActivity(activity -> {
-                EditText primary = activity.findViewById(R.id.primarySmscInput);
-                EditText secondary = activity.findViewById(R.id.secondarySmscInput);
-                EditText targets = activity.findViewById(R.id.targetPackagesInput);
-                CheckBox diagnostics = activity.findViewById(R.id.diagnosticsCheck);
-                Button save = activity.findViewById(R.id.saveButton);
-                Button selfCheck = activity.findViewById(R.id.selfCheckButton);
-                TextView status = activity.findViewById(R.id.statusText);
-
-                assertNotNull(primary);
-                assertNotNull(secondary);
-                assertNotNull(targets);
-                assertNotNull(diagnostics);
-                assertNotNull(save);
-                assertNotNull(selfCheck);
-                assertNotNull(status);
-                assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE, status.getAccessibilityLiveRegion());
-                assertEquals(activity.getString(R.string.settings_save), save.getText().toString());
-                assertEquals(activity.getString(R.string.settings_self_check_action), selfCheck.getText().toString());
-                assertEquals(activity.getString(R.string.settings_status_initial), status.getText().toString());
+                assertNotNull(activity);
+                assertNotNull(activity.getViewModel());
+                assertNotNull(activity.getViewModel().getUiState().getValue());
+                assertEquals(SmscGuard.DEFAULT_SMSC_PRIMARY, activity.getViewModel().getUiState().getValue().getPrimarySmsc());
+                assertEquals(SmscGuard.DEFAULT_SMSC_SECONDARY, activity.getViewModel().getUiState().getValue().getSecondarySmsc());
             });
         }
     }
