@@ -6,7 +6,7 @@ The CI release workflow produces an **unsigned release candidate** together with
 
 ## Pre-rollout gates
 
-Run the Gradle quality gates, review the validation matrix, and confirm a supported rooted-device profile has passed the applicable D-01 through D-12 cases. In particular, verify managed LSPosed preferences (D-11) and the narrow legacy fallback where supported (D-12), in addition to routing, scope, configuration-reload, and preserve-on-uncertainty cases. Confirm that the release tag matches `versionName`, the signed artifact digest has been recorded, a previous known-good signed artifact is available, and the rollback rehearsal has been completed for the release family.
+Run the Gradle quality gates, review the validation matrix, and confirm a supported rooted-device profile has passed the applicable D-01 through D-12 cases. In particular, verify Libxposed API 102 Service IPC synchronization (D-11) and graceful standalone fallback (D-12), in addition to routing, scope, configuration-reload, and preserve-on-uncertainty cases. Confirm that the release tag matches `versionName`, the signed artifact digest has been recorded, a previous known-good signed artifact is available, and the rollback rehearsal has been completed for the release family.
 
 ## Smoke validation
 

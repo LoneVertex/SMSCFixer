@@ -2,7 +2,7 @@
 
 ## Preconditions
 
-Begin this cadence only after the signed artifact, its verified digest, a known-good rollback artifact, the completed rooted-device validation matrix, and rollback-rehearsal evidence are available. The current v2.0.0 review branch and pull request do not satisfy these deployment prerequisites.
+Begin this cadence only after the signed artifact, its verified digest, a known-good rollback artifact, the completed rooted-device validation matrix, and rollback-rehearsal evidence are available. For the official production v2.0.0 release, the signed artifact (`smscguard-v2.0.0-release-signed.apk`) is published with cryptographic checksums and verified against the candidate manifest.
 
 ## Staged checkpoints
 

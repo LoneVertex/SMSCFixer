@@ -1,5 +1,8 @@
 # Remediation Implementation Record
 
+> [!NOTE]
+> **Archival Audit Baseline (PR #4):** This record documents the initial remediation phase merged into `main` via PR #4 (`edbe127`). The project has since completed the **Libxposed API 102 modernization** (merged via PR #5) and published the official cryptographically signed release **`v2.0.0`** (`smscguard-v2.0.0-release-signed.apk`). Legacy `XSharedPreferences` and world-readable modes have been superseded by modern Service IPC (`XposedService` / `RemotePreferences` / `XposedProvider`) detailed in [ADR-002](../security/configuration-sharing-decision.md).
+
 ## Scope and branch
 
 The remediation program was implemented from audited base commit `6e3de4124aa8ac3ac00cf98675d3b0d0d0fbcc43` on the original local branch `manus/smscfixer-remediation`. The changes were merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4). The public `v2.0.0` release is a pre-release for controlled testing; its production-target candidate remains unsigned. No production signing, device installation, or SMS operation is authorized by this record.

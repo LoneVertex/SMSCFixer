@@ -2,7 +2,7 @@
 
 This worksheet is completed by the controlled signing owner and test operator. It does not authorize a release, deploy an APK, or send an SMS message by itself.
 
-> **Repository status:** This is a reusable evidence template, so its operator-completed fields remain blank in source control. The SMSC Guard v2.0.0 implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) through [pull request #4](https://github.com/LoneVertex/SMSCFixer/pull/4) and is available as a public pre-release. The production-target candidate remains unsigned. Populate and retain completed evidence in the approved secure release channel after controlled signing and device validation.
+> **Repository status:** This is a reusable evidence template, so its operator-completed fields remain blank in source control for future releases. The official SMSC Guard v2.0.0 implementation is merged into [`main`](https://github.com/LoneVertex/SMSCFixer/tree/main) and published as an official signed release (`smscguard-v2.0.0-release-signed.apk`) with verified RSA-4096 cryptographic signatures and SHA-256 checksums recorded in [`docs/releases/v2.0.0-identity-evidence.md`](../releases/v2.0.0-identity-evidence.md).
 
 ## Candidate identity
 
@@ -38,8 +38,8 @@ The signing owner must verify that the unsigned candidate SHA-256 matches the ca
 | D-03 SIM2 secondary | | | | |
 | D-06 unknown signals preserved | | | | |
 | D-07 conflicting signals preserved | | | | |
-| D-11 managed LSPosed preferences | | | | |
-| D-12 legacy preference fallback, if supported | | | | |
+| D-11 Libxposed API 102 Service IPC | | | | |
+| D-12 Standalone / Service Pending fallback | | | | |
 
 ## Rollback rehearsal
 

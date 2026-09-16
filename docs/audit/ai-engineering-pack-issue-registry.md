@@ -1,5 +1,8 @@
 # AI Project Engineering Pack v1.1 — SMSC Guard Issue Registry
 
+> [!NOTE]
+> **Archival Audit Baseline (PR #4):** This registry captures the issue baseline from the initial remediation phase on merged PR #4 (`edbe127`). The project has since advanced through full **Libxposed API 102 modernization** (merged via PR #5) and published the official cryptographically signed release **`v2.0.0`** (`smscguard-v2.0.0-release-signed.apk`). Legacy `XSharedPreferences` and world-readable modes discussed below have been superseded by modern Service IPC (`XposedService` / `RemotePreferences` / `XposedProvider`) detailed in [ADR-002](../security/configuration-sharing-decision.md).
+
 ## Registry purpose
 
 This registry applies the supplied **AI Project Engineering Pack Ultra v1.1** to SMSC Guard without duplicating the earlier deep audit or treating every pack domain as applicable. It is the canonical correlation point for pack findings, existing remediation evidence, remaining validation gaps, and any follow-up change set.

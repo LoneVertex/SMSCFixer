@@ -16,13 +16,13 @@ Retain the previous known-good APK and record its SHA-256 in the rollback eviden
 | Version name | `2.0.0` |
 | Version code | `2000000` |
 | Application ID | `io.github.lonevertex.smscguard` |
-| Candidate status | `unsigned_release_candidate` before the external signing step |
+| Candidate status | Official signed production release (`smscguard-v2.0.0-release-signed.apk`) |
 
 ## Controlled migration procedure
 
 1. Stop the old module from intercepting traffic by disabling its LSPosed scope or disabling the old module. Do not leave both packages enabled for the same `android` or messaging-process scope.
 2. Install the controlled, signed SMSC Guard artifact only after its candidate manifest, digest, and signing evidence have been verified.
-3. In LSPosed Manager, enable **SMSC Guard** and scope it at least to `android` plus the intended messaging package. Recreate any additional supported scope deliberately.
+3. In LSPosed Manager, enable **SMSC Guard**. The module declares canonical `xposedscope` metadata, so LSPosed Manager will automatically pre-select recommended targets (`System Framework (android)`, `Google Messages (com.google.android.apps.messaging)`, and `MMS (com.android.mms)`). Confirm the scope or add custom OEM messaging packages if applicable.
 4. Open **SMSC Guard Settings**. Enter and save validated SMSC values, target package list, and diagnostic preference. Settings do not carry automatically from the old package because the package and preference namespace changed.
 5. Reboot the device or restart every scoped process.
 6. Run the configuration self-check. Then run the non-delivery Android instrumentation validation and the applicable rooted-device cases in `docs/testing/validation-matrix.md`.
@@ -30,7 +30,7 @@ Retain the previous known-good APK and record its SHA-256 in the rollback eviden
 
 ## Required v2.0.0 validation cases
 
-The package migration makes the following cases mandatory before broad rollout: scope recognition (D-01), primary/secondary routing (D-02/D-03 where authorized), preserve-on-uncertainty behavior (D-06/D-07), invalid configuration protection (D-09), post-restart configuration loading (D-10), LSPosed managed preferences (D-11), and fallback behavior where the target manager supports it (D-12).
+The package migration makes the following cases mandatory before broad rollout: scope recognition (D-01), primary/secondary routing (D-02/D-03 where authorized), preserve-on-uncertainty behavior (D-06/D-07), invalid configuration protection (D-09), post-restart configuration loading (D-10), Libxposed API 102 Service IPC (D-11), and standalone fallback behavior (D-12).
 
 ## Rollback
 

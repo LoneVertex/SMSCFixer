@@ -15,7 +15,7 @@
   <a href="https://github.com/libxposed"><img src="https://img.shields.io/badge/libxposed-API%20102-8A2BE2" alt="Libxposed API 102" /></a>
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
-  <a href="https://github.com/LoneVertex/SMSCFixer"><img src="https://img.shields.io/badge/Tests-80%20Passing-success" alt="Tests" /></a>
+  <a href="https://github.com/LoneVertex/SMSCFixer"><img src="https://img.shields.io/badge/Tests-81%20Passing-success" alt="Tests" /></a>
 </p>
 
 ---
@@ -37,7 +37,7 @@ If carrier signals are conflicting or slot evidence is indeterminate, SMSC Guard
 - **Zero-Dependency Reflection Engine (`ReflectUtils`):** Clean separation from legacy `XposedHelpers`. Built on thread-safe, cached Java reflection with comprehensive primitive-to-wrapper assignability and null-argument resolution.
 - **Material 3 Dynamic Settings UI:** A modern Jetpack Compose dashboard (`SettingsDashboard.kt`, `SettingsViewModel.kt`) supporting dynamic theming (Material You), live LSPosed framework connection telemetry badges, per-slot E.164 phone number validation, and target scope management.
 - **Privacy by Design (Zero PII):** SMS message content, recipient phone numbers, IMSI/IMEI, and personal data are **never** inspected, captured, or logged. Diagnostic logs are strictly redacted and throttled.
-- **Hermetic Testing Gate:** Verified by 80 automated unit tests, strict Android Lint analysis, and signed release verification scripts.
+- **Hermetic Testing Gate:** Verified by 81 automated unit tests, strict Android Lint analysis, and signed release verification scripts.
 
 ---
 
@@ -172,7 +172,7 @@ SMSCFixer/
 │   │       ├── module.prop                 # API 102 module descriptor
 │   │       ├── java_init.list              # Entry point registration
 │   │       └── scope.list                  # Target process scope allowlist
-│   └── src/test/                           # 80 hermetic unit test suites
+│   └── src/test/                           # 81 hermetic unit test suites
 ├── docs/                                   # Architecture, security, operations & audit docs
 │   ├── operations/                         # Device compatibility registry & runbooks
 │   ├── production/                         # Migration & rollback evidence

@@ -1,5 +1,8 @@
 # Next-Stage Independent Review
 
+> [!NOTE]
+> **Archival Audit Baseline (PR #4):** This document records the historical review baseline from the initial remediation phase (merged into `main` via PR #4). The codebase has since advanced through full **Libxposed API 102 modernization** (merged via PR #5) and an official cryptographically signed production release **`v2.0.0`** (`smscguard-v2.0.0-release-signed.apk`). Legacy `XSharedPreferences` and world-readable modes discussed below have been superseded by modern Service IPC (`XposedService` / `RemotePreferences` / `XposedProvider`) detailed in [ADR-002](../security/configuration-sharing-decision.md).
+
 ## Review scope
 
 This review examined the committed remediation branch relative to `main`, then assessed the subsequent LSPosed-managed preference compatibility change before device validation. The source review covered hook registration, argument mutation, routing decisions, configuration loading, cache bounds, diagnostics, settings permissions, tests, workflows, release scripts, and operational documents.

@@ -24,7 +24,7 @@
   Provide proof of local verification, such as test execution output, lint results, or APK verification.
   Example:
   - `./gradlew --no-daemon clean lint test assembleDebug` passed with 0 errors.
-  - All 80 unit tests passed hermetically.
+  - All 81 unit tests passed hermetically.
 -->
 
 ## Rollback Notes

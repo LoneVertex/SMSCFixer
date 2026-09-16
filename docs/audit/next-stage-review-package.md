@@ -1,5 +1,8 @@
 # Next-Stage Reviewer Package
 
+> [!NOTE]
+> **Archival Audit Baseline (PR #4):** This record describes the original remediation and next-stage assurance preparation merged into `main` via PR #4 (`edbe127`). The project has since completed the **Libxposed API 102 modernization** (merged via PR #5) and published the official cryptographically signed release **`v2.0.0`** (`smscguard-v2.0.0-release-signed.apk`). Legacy `XSharedPreferences` and world-readable modes have been superseded by modern Service IPC (`XposedService` / `RemotePreferences` / `XposedProvider`) detailed in [ADR-002](../security/configuration-sharing-decision.md).
+
 ## Branch and scope
 
 **Historical preparation branch:** `manus/smscfixer-remediation`

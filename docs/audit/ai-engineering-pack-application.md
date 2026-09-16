@@ -1,5 +1,8 @@
 # AI Project Engineering Pack v1.1 — Final SMSC Guard Application Review
 
+> [!NOTE]
+> **Archival Audit Baseline (PR #4):** This document records the engineering pack review performed on merged PR #4 (`edbe127`). The project has since advanced through full **Libxposed API 102 modernization** (merged via PR #5) and published the official cryptographically signed release **`v2.0.0`** (`smscguard-v2.0.0-release-signed.apk`). Legacy `XSharedPreferences` and world-readable modes discussed below have been superseded by modern Service IPC (`XposedService` / `RemotePreferences` / `XposedProvider`) detailed in [ADR-002](../security/configuration-sharing-decision.md).
+
 ## Executive summary
 
 The AI Project Engineering Pack Ultra v1.1 was applied to the SMSC Guard v2.0.0 review branch through a safety-gated discovery correlation, canonical issue registry, targeted documentation remediation, full Android quality validation, and final re-audit. The result is a more traceable engineering record rather than a broad rewrite: existing routing, hook, configuration, caching, logging, UI, CI, release, and rollback controls were reverified, pack applicability was made explicit, stale project-state documentation was corrected, and remaining device-dependent risks were kept visible.
