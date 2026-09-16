@@ -92,4 +92,46 @@ class SettingsUiLogicTest {
         assertTrue(packagesOk)
         assertEquals(2, parsedTargets.size)
     }
+
+    @Test
+    fun testSettingsUiStateFrameworkTelemetryDefaults() {
+        val state = SettingsUiState()
+        assertFalse("isLsposedBound should default to false", state.isLsposedBound)
+        assertNull("frameworkInfo should default to null", state.frameworkInfo)
+        assertFalse("lsposedManagedPreferences should default to false", state.lsposedManagedPreferences)
+    }
+
+    @Test
+    fun testSettingsUiStateFrameworkTelemetryStateTransitions() {
+        val initialState = SettingsUiState()
+
+        val boundState = initialState.copy(
+            isLsposedBound = true,
+            frameworkInfo = "LSPosed 2.2.0 (102)",
+            lsposedManagedPreferences = true
+        )
+        assertTrue("isLsposedBound should be true when bound", boundState.isLsposedBound)
+        assertEquals("LSPosed 2.2.0 (102)", boundState.frameworkInfo)
+        assertTrue("lsposedManagedPreferences should be true when bound", boundState.lsposedManagedPreferences)
+
+        val unboundState = boundState.copy(
+            isLsposedBound = false,
+            frameworkInfo = null,
+            lsposedManagedPreferences = false
+        )
+        assertFalse("isLsposedBound should be false after unbinding", unboundState.isLsposedBound)
+        assertNull("frameworkInfo should be null after unbinding", unboundState.frameworkInfo)
+        assertFalse("lsposedManagedPreferences should be false after unbinding", unboundState.lsposedManagedPreferences)
+    }
+
+    @Test
+    fun testPreferencesManagerFrameworkFlows() {
+        PreferencesManager.updateFrameworkStatusForTesting(true, "LSPosed 2.2.0 (102)")
+        assertTrue(PreferencesManager.isLsposedBound.value)
+        assertEquals("LSPosed 2.2.0 (102)", PreferencesManager.frameworkInfo.value)
+
+        PreferencesManager.updateFrameworkStatusForTesting(false)
+        assertFalse(PreferencesManager.isLsposedBound.value)
+        assertNull(PreferencesManager.frameworkInfo.value)
+    }
 }

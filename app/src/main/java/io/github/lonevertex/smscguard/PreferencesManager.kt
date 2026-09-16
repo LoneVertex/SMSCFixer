@@ -8,6 +8,7 @@ import io.github.libxposed.service.XposedServiceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.atomic.AtomicBoolean
 
 class PreferencesManager(private val context: Context) {
     companion object {
@@ -16,8 +17,7 @@ class PreferencesManager(private val context: Context) {
         @Volatile
         private var sharedService: XposedService? = null
 
-        @Volatile
-        private var listenerRegistered = false
+        private val listenerRegistered = AtomicBoolean(false)
 
         private val _isLsposedBound = MutableStateFlow(false)
         val isLsposedBound: StateFlow<Boolean> = _isLsposedBound.asStateFlow()
@@ -37,19 +37,30 @@ class PreferencesManager(private val context: Context) {
             override fun onServiceDied(service: XposedService) {
                 sharedService = null
                 _isLsposedBound.value = false
+                _frameworkInfo.value = null
             }
+        }
+
+        internal fun updateFrameworkStatusForTesting(bound: Boolean, info: String? = null) {
+            _isLsposedBound.value = bound
+            _frameworkInfo.value = if (bound) info else null
         }
     }
 
     init {
-        if (!listenerRegistered) {
-            listenerRegistered = true
+        if (listenerRegistered.compareAndSet(false, true)) {
             XposedServiceHelper.registerListener(serviceListener)
         }
         if (sharedService != null) {
             _isLsposedBound.value = true
         }
     }
+
+    val isLsposedBound: StateFlow<Boolean>
+        get() = PreferencesManager.isLsposedBound
+
+    val frameworkInfo: StateFlow<String?>
+        get() = PreferencesManager.frameworkInfo
 
     fun openPreferences(): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

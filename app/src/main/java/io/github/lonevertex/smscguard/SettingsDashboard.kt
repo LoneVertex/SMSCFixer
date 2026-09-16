@@ -79,6 +79,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.lonevertex.smscguard.ui.theme.ElectricTeal
+import io.github.lonevertex.smscguard.ui.theme.StatusSuccess
 import io.github.lonevertex.smscguard.ui.theme.WarmAmber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,10 +204,12 @@ fun SettingsDashboard(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header: Module Health Card
+            // Header: Status Header Card
             item {
-                ModuleHealthCard(
+                StatusHeaderCard(
                     version = state.appVersion,
+                    isLsposedBound = state.isLsposedBound,
+                    frameworkInfo = state.frameworkInfo,
                     isManaged = state.lsposedManagedPreferences,
                     isReady = state.isReady
                 )
@@ -314,10 +317,12 @@ fun SettingsDashboard(
 }
 
 @Composable
-fun ModuleHealthCard(
+fun StatusHeaderCard(
     version: String,
-    isManaged: Boolean,
-    isReady: Boolean,
+    isLsposedBound: Boolean,
+    frameworkInfo: String?,
+    isManaged: Boolean = isLsposedBound,
+    isReady: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -373,6 +378,48 @@ fun ModuleHealthCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Real-time framework connection status badge
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = if (isLsposedBound) StatusSuccess.copy(alpha = 0.15f) else WarmAmber.copy(alpha = 0.15f),
+                modifier = Modifier.border(
+                    1.dp,
+                    if (isLsposedBound) StatusSuccess.copy(alpha = 0.4f) else WarmAmber.copy(alpha = 0.4f),
+                    RoundedCornerShape(8.dp)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(if (isLsposedBound) StatusSuccess else WarmAmber)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (isLsposedBound) "LSPosed Active" else "Module Standalone / Service Pending",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isLsposedBound) StatusSuccess else WarmAmber
+                    )
+                }
+            }
+
+            if (isLsposedBound && !frameworkInfo.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = frameworkInfo,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -387,7 +434,7 @@ fun ModuleHealthCard(
                     )
                 ) {
                     Text(
-                        text = if (isManaged) {
+                        text = if (isLsposedBound || isManaged) {
                             stringResource(R.string.module_managed_storage)
                         } else {
                             stringResource(R.string.module_legacy_storage)
@@ -417,6 +464,24 @@ fun ModuleHealthCard(
             }
         }
     }
+}
+
+@Deprecated("Use StatusHeaderCard", ReplaceWith("StatusHeaderCard(version, isManaged, null, isManaged, isReady, modifier)"))
+@Composable
+fun ModuleHealthCard(
+    version: String,
+    isManaged: Boolean,
+    isReady: Boolean,
+    modifier: Modifier = Modifier
+) {
+    StatusHeaderCard(
+        version = version,
+        isLsposedBound = isManaged,
+        frameworkInfo = null,
+        isManaged = isManaged,
+        isReady = isReady,
+        modifier = modifier
+    )
 }
 
 @Composable

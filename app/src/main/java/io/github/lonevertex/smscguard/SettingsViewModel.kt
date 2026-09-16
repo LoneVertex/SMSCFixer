@@ -32,6 +32,8 @@ data class SettingsUiState(
     val isDefaultScopeActive: Boolean = true,
     val diagnosticsEnabled: Boolean = false,
     val lsposedManagedPreferences: Boolean = false,
+    val isLsposedBound: Boolean = false,
+    val frameworkInfo: String? = null,
     val isSaving: Boolean = false,
     val status: UiStatus? = null,
     val sanitizedRoutingDecision: String? = null,
@@ -58,6 +60,20 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     init {
         preferencesManager.ensureSchemaVersion(prefs)
         loadInitialPreferences()
+        observeFrameworkTelemetry()
+    }
+
+    private fun observeFrameworkTelemetry() {
+        viewModelScope.launch {
+            PreferencesManager.isLsposedBound.collect { bound ->
+                _uiState.update { it.copy(isLsposedBound = bound, lsposedManagedPreferences = bound) }
+            }
+        }
+        viewModelScope.launch {
+            PreferencesManager.frameworkInfo.collect { info ->
+                _uiState.update { it.copy(frameworkInfo = info) }
+            }
+        }
     }
 
     private fun loadInitialPreferences() {
@@ -82,6 +98,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 isDefaultScopeActive = isDefaultScope,
                 diagnosticsEnabled = diagnostics,
                 lsposedManagedPreferences = preferencesManager.isLsposedManaged,
+                isLsposedBound = PreferencesManager.isLsposedBound.value,
+                frameworkInfo = PreferencesManager.frameworkInfo.value,
                 status = UiStatus.ResourceMessage(R.string.settings_status_initial, isError = false)
             )
         }
@@ -211,6 +229,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     .putString(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, targetsCsv)
                     .putBoolean(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, state.diagnosticsEnabled)
                     .commit()
+                preferencesManager.syncToRemote(prefs)
                 val readable = stored && preferencesManager.makePrefsReadableForXposed()
                 Pair(stored, readable)
             }
@@ -227,6 +246,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun savePreferences() = saveSettings()
 
     fun runSelfCheck() {
         val schemaVersion = prefs.getInt(SmscConfigSchema.KEY_SCHEMA_VERSION, 0)
