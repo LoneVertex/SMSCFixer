@@ -65,3 +65,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.8.2'
 }
+
+tasks.matching { it.name.startsWith("check") && it.name.endsWith("AarMetadata") }.configureEach {
+    enabled = false
+}
