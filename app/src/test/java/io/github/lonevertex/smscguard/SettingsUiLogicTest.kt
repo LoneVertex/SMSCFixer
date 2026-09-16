@@ -42,8 +42,8 @@ class SettingsUiLogicTest {
 
     @Test
     fun testDefaultSmscConstantsPreserved() {
-        assertEquals("+20105996500", SmscGuard.DEFAULT_SMSC_PRIMARY)
-        assertEquals("+20122000020", SmscGuard.DEFAULT_SMSC_SECONDARY)
+        assertEquals("+20105996500", SmscGuardModule.DEFAULT_SMSC_PRIMARY)
+        assertEquals("+20122000020", SmscGuardModule.DEFAULT_SMSC_SECONDARY)
         assertEquals("+20105996500", SettingsViewModel.DEFAULT_PRIMARY)
         assertEquals("+20122000020", SettingsViewModel.DEFAULT_SECONDARY)
         assertTrue(SettingsViewModel.DEFAULT_PACKAGES.contains("com.google.android.apps.messaging"))
@@ -53,21 +53,21 @@ class SettingsUiLogicTest {
     @Test
     fun testSanitizedRoutingSimulationDecisions() {
         val config = SmscRuntimeConfig.buildDefaultConfig(
-            SmscGuard.DEFAULT_SMSC_PRIMARY,
-            SmscGuard.DEFAULT_SMSC_SECONDARY
+            SmscGuardModule.DEFAULT_SMSC_PRIMARY,
+            SmscGuardModule.DEFAULT_SMSC_SECONDARY
         )
 
         // Slot 0 -> Primary
         val result0 = SmscSelector.selectSmscDetailed(0, "60202", "Vodafone Egypt", config)
         assertTrue(result0.replacementAuthorized)
         assertEquals(SmscSelector.DecisionReason.SLOT_PRIMARY, result0.reason)
-        assertEquals(SmscGuard.DEFAULT_SMSC_PRIMARY, result0.smsc)
+        assertEquals(SmscGuardModule.DEFAULT_SMSC_PRIMARY, result0.smsc)
 
         // Slot 1 -> Secondary
         val result1 = SmscSelector.selectSmscDetailed(1, "60201", "Orange Egypt", config)
         assertTrue(result1.replacementAuthorized)
         assertEquals(SmscSelector.DecisionReason.SLOT_SECONDARY, result1.reason)
-        assertEquals(SmscGuard.DEFAULT_SMSC_SECONDARY, result1.smsc)
+        assertEquals(SmscGuardModule.DEFAULT_SMSC_SECONDARY, result1.smsc)
 
         // Ambiguous signals -> Preserved original
         val resultAmbiguous = SmscSelector.selectSmscDetailed(-1, "60201", "Vodafone Egypt", config)

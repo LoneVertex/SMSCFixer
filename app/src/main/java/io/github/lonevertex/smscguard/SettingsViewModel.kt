@@ -19,9 +19,9 @@ sealed class UiStatus {
 }
 
 data class SettingsUiState(
-    val primarySmsc: String = SmscGuard.DEFAULT_SMSC_PRIMARY,
+    val primarySmsc: String = SmscGuardModule.DEFAULT_SMSC_PRIMARY,
     val isPrimaryValid: Boolean = true,
-    val secondarySmsc: String = SmscGuard.DEFAULT_SMSC_SECONDARY,
+    val secondarySmsc: String = SmscGuardModule.DEFAULT_SMSC_SECONDARY,
     val isSecondaryValid: Boolean = true,
     val targetPackages: Set<String> = setOf(
         "com.google.android.apps.messaging",
@@ -51,8 +51,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     companion object {
         private val E164_PATTERN = Pattern.compile("^\\+[0-9]{5,20}$")
         val DEFAULT_PACKAGES = setOf("com.google.android.apps.messaging", "com.android.mms")
-        const val DEFAULT_PRIMARY = SmscGuard.DEFAULT_SMSC_PRIMARY
-        const val DEFAULT_SECONDARY = SmscGuard.DEFAULT_SMSC_SECONDARY
+        const val DEFAULT_PRIMARY = SmscGuardModule.DEFAULT_SMSC_PRIMARY
+        const val DEFAULT_SECONDARY = SmscGuardModule.DEFAULT_SMSC_SECONDARY
     }
 
     init {

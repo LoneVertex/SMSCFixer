@@ -30,12 +30,12 @@ class PreferencesManager(private val context: Context) {
             return
         }
         val normalizedPrimary = SmscConfigSchema.normalizeSmscOrDefault(
-            prefs.getString(SmscConfigSchema.KEY_PRIMARY_SMSC, SmscGuard.DEFAULT_SMSC_PRIMARY),
-            SmscGuard.DEFAULT_SMSC_PRIMARY
+            prefs.getString(SmscConfigSchema.KEY_PRIMARY_SMSC, SmscGuardModule.DEFAULT_SMSC_PRIMARY),
+            SmscGuardModule.DEFAULT_SMSC_PRIMARY
         )
         val normalizedSecondary = SmscConfigSchema.normalizeSmscOrDefault(
-            prefs.getString(SmscConfigSchema.KEY_SECONDARY_SMSC, SmscGuard.DEFAULT_SMSC_SECONDARY),
-            SmscGuard.DEFAULT_SMSC_SECONDARY
+            prefs.getString(SmscConfigSchema.KEY_SECONDARY_SMSC, SmscGuardModule.DEFAULT_SMSC_SECONDARY),
+            SmscGuardModule.DEFAULT_SMSC_SECONDARY
         )
         val normalizedTargets = SmscConfigSchema.normalizeTargetPackagesCsv(
             prefs.getString(

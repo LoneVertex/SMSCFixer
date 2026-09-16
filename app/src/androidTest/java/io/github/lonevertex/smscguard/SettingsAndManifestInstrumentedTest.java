@@ -49,8 +49,8 @@ public class SettingsAndManifestInstrumentedTest {
                 assertNotNull(activity);
                 assertNotNull(activity.getViewModel());
                 assertNotNull(activity.getViewModel().getUiState().getValue());
-                assertEquals(SmscGuard.DEFAULT_SMSC_PRIMARY, activity.getViewModel().getUiState().getValue().getPrimarySmsc());
-                assertEquals(SmscGuard.DEFAULT_SMSC_SECONDARY, activity.getViewModel().getUiState().getValue().getSecondarySmsc());
+                assertEquals(SmscGuardModule.DEFAULT_SMSC_PRIMARY, activity.getViewModel().getUiState().getValue().getPrimarySmsc());
+                assertEquals(SmscGuardModule.DEFAULT_SMSC_SECONDARY, activity.getViewModel().getUiState().getValue().getSecondarySmsc());
             });
         }
     }
