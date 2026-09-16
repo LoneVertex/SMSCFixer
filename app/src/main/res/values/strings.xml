@@ -35,4 +35,23 @@
     <string name="settings_hint_primary_smsc">+20105996500</string>
     <string name="settings_hint_secondary_smsc">+20122000020</string>
     <string name="settings_hint_target_packages">com.google.android.apps.messaging,com.android.mms</string>
+
+    <string name="carrier_vodafone_egypt">Vodafone Egypt (60202)</string>
+    <string name="carrier_orange_egypt">Orange Egypt (60201)</string>
+    <string name="sim_slot_0_badge">SIM 1 · Slot 0</string>
+    <string name="sim_slot_1_badge">SIM 2 · Slot 1</string>
+    <string name="reset_to_default">Reset to Default</string>
+    <string name="default_scope_active">Default Scope Active</string>
+    <string name="custom_scope_active">Custom Scope Active</string>
+    <string name="redacted_diagnostics_title">Redacted Diagnostics Mode</string>
+    <string name="redacted_diagnostics_desc">Technical audit logging with privacy enforcement. Raw phone numbers, SMSC addresses, carrier names, and message bodies are strictly redacted.</string>
+    <string name="simulate_route_test">Simulate Verification Decision</string>
+    <string name="module_ready">Hook Ready</string>
+    <string name="module_managed_storage">API 102 Remote Service Storage</string>
+    <string name="module_legacy_storage">Private Storage (Service Pending)</string>
+    <string name="module_local_storage">Private Storage (Service Pending)</string>
+    <string name="add_package_label">Add Custom Target Package</string>
+    <string name="add_action">Add</string>
+    <string name="status_lsposed_active">LSPosed Active</string>
+    <string name="status_lsposed_pending">Module Standalone / Service Pending</string>
 </resources>

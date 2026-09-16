@@ -3,3 +3,9 @@ local.properties
 **/build/
 .idea/
 *.iml
+.superpowers/
+.env*
+*.pem
+*.key
+*.p12
+*.secret

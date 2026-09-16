@@ -1,9 +1,9 @@
 package io.github.lonevertex.smscguard;
 
+import android.util.Log;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import de.robv.android.xposed.XposedBridge;
 
 /**
  * Centralizes diagnostic gating, redaction, and bounded event throttling.
@@ -24,12 +24,20 @@ final class DiagnosticLogger {
     }
 
     void info(String eventName) {
-        XposedBridge.log(tag + ": event=" + eventName);
+        try {
+            Log.i(tag, "event=" + eventName);
+        } catch (Throwable ignored) {
+            // Fallback for JVM environments without mocked android.util.Log
+        }
     }
 
     void diagnostic(String eventName, String metadata) {
         if (diagnosticsEnabled) {
-            XposedBridge.log(tag + ": event=" + eventName + " " + metadata);
+            try {
+                Log.d(tag, "event=" + eventName + " " + metadata);
+            } catch (Throwable ignored) {
+                // Fallback for JVM environments without mocked android.util.Log
+            }
         }
     }
 

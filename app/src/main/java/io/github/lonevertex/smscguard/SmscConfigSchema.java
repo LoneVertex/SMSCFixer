@@ -14,9 +14,14 @@ final class SmscConfigSchema {
     static final String DEFAULT_TARGET_PACKAGES_CSV = "com.google.android.apps.messaging,com.android.mms";
 
     private static final Pattern SMSC_PATTERN = Pattern.compile("^\\+?[0-9]{5,20}$");
+    private static final Pattern STRICT_E164_PATTERN = Pattern.compile("^\\+[0-9]{5,20}$");
     private static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)+$");
 
     private SmscConfigSchema() {
+    }
+
+    static boolean isStrictE164(String value) {
+        return value != null && STRICT_E164_PATTERN.matcher(value.trim()).matches();
     }
 
     static String normalizeSmscOrDefault(String raw, String fallback) {

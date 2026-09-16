@@ -80,4 +80,69 @@ public class SmscGuardConfigTest {
     public void mixedValidAndInvalidTargetsAreRejectedByTheUi() {
         assertFalse(SmscConfigSchema.isTargetPackagesCsvAcceptable("com.good.one,bad package"));
     }
+
+    @Test
+    public void configurationRepositoryLoadsDefaultWhenPrefsNull() {
+        DiagnosticLogger logger = new DiagnosticLogger("TestTag");
+        ConfigurationRepository repo = new ConfigurationRepository(
+                "io.github.lonevertex.smscguard",
+                "smscguard_prefs",
+                "+20105996500",
+                "+20122000020",
+                logger
+        );
+        ConfigurationRepository.Snapshot snapshot = repo.load(null, false);
+        assertEquals("+20105996500", snapshot.selectionConfig.primarySmsc);
+        assertEquals("+20122000020", snapshot.selectionConfig.secondarySmsc);
+        assertFalse(snapshot.diagnosticsEnabled);
+
+        ConfigurationRepository.Snapshot romDiagSnapshot = repo.load(null, true);
+        assertTrue(romDiagSnapshot.diagnosticsEnabled);
+    }
+
+    @Test
+    public void configurationRepositoryLoadsFromSharedPreferences() {
+        DiagnosticLogger logger = new DiagnosticLogger("TestTag");
+        ConfigurationRepository repo = new ConfigurationRepository(
+                "io.github.lonevertex.smscguard",
+                "smscguard_prefs",
+                "+fallbackPrimary",
+                "+fallbackSecondary",
+                logger
+        );
+
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put(SmscConfigSchema.KEY_SCHEMA_VERSION, 2);
+        data.put(SmscConfigSchema.KEY_PRIMARY_SMSC, "+20101111111");
+        data.put(SmscConfigSchema.KEY_SECONDARY_SMSC, "+20122222222");
+        data.put(SmscConfigSchema.KEY_TARGET_PACKAGES_CSV, "com.custom.sms");
+        data.put(SmscConfigSchema.KEY_DIAGNOSTICS_ENABLED, true);
+
+        android.content.SharedPreferences prefs = (android.content.SharedPreferences) java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class<?>[]{android.content.SharedPreferences.class},
+                (proxy, method, args) -> {
+                    String name = method.getName();
+                    if ("getInt".equals(name)) {
+                        Object val = data.get(args[0]);
+                        return val instanceof Integer ? val : args[1];
+                    }
+                    if ("getString".equals(name)) {
+                        Object val = data.get(args[0]);
+                        return val instanceof String ? val : args[1];
+                    }
+                    if ("getBoolean".equals(name)) {
+                        Object val = data.get(args[0]);
+                        return val instanceof Boolean ? val : args[1];
+                    }
+                    return null;
+                }
+        );
+
+        ConfigurationRepository.Snapshot snapshot = repo.load(prefs, false);
+        assertEquals("+20101111111", snapshot.selectionConfig.primarySmsc);
+        assertEquals("+20122222222", snapshot.selectionConfig.secondarySmsc);
+        assertTrue(snapshot.selectionConfig.targetPackages.contains("com.custom.sms"));
+        assertTrue(snapshot.diagnosticsEnabled);
+    }
 }

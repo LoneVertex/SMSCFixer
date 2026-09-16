@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Shield Base Fill (Deep Elevated Surface) -->
+    <path
+        android:fillColor="#0E2442"
+        android:pathData="M 54,24 C 66,24 78,27 80,31 C 80,54 68,73 54,84 C 40,73 28,54 28,31 C 30,27 42,24 54,24 Z" />
+
+    <!-- Shield Protective Border (Electric Teal) -->
+    <path
+        android:strokeColor="#14C8D1"
+        android:strokeWidth="2.75"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M 54,24 C 66,24 78,27 80,31 C 80,54 68,73 54,84 C 40,73 28,54 28,31 C 30,27 42,24 54,24 Z" />
+
+    <!-- Inner SMS Chat Bubble -->
+    <path
+        android:fillColor="#122B49"
+        android:strokeColor="#2C536F"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:pathData="M 43,36 L 65,36 C 69.4,36 73,39.6 73,44 L 73,52 C 73,56.4 69.4,60 65,60 L 49,60 L 41,66 L 42.5,60 C 38.6,59.2 35,56 35,52 L 35,44 C 35,39.6 38.6,36 43,36 Z" />
+
+    <!-- Slot 0 Primary Routing Vector (Teal Arrow to Right) -->
+    <path
+        android:strokeColor="#14C8D1"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 41,44 L 59,44" />
+    <path
+        android:fillColor="#14C8D1"
+        android:pathData="M 57,41.5 L 63,44 L 57,46.5 Z" />
+
+    <!-- Slot 1 Secondary Routing Vector (Amber Arrow to Left) -->
+    <path
+        android:strokeColor="#FFB547"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 67,52 L 49,52" />
+    <path
+        android:fillColor="#FFB547"
+        android:pathData="M 51,49.5 L 45,52 L 51,54.5 Z" />
+
+    <!-- Dual SIM Routing Hub Nodes at Shield Base -->
+    <path
+        android:fillColor="#14C8D1"
+        android:pathData="M 47,72 A 2.5,2.5 0 1,0 47,77 A 2.5,2.5 0 1,0 47,72 Z" />
+    <path
+        android:fillColor="#FFB547"
+        android:pathData="M 59,72 A 2.5,2.5 0 1,0 59,77 A 2.5,2.5 0 1,0 59,72 Z" />
+
+    <!-- Subtle Connection Traces to Base Nodes -->
+    <path
+        android:strokeColor="#14C8D1"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M 47,67 L 47,72" />
+    <path
+        android:strokeColor="#FFB547"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M 59,67 L 59,72" />
+</vector>

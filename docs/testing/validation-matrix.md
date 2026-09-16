@@ -4,10 +4,10 @@ This matrix distinguishes automated repository checks from validation that requi
 
 | Layer | Environment | Coverage | Required evidence | Release gate |
 |---|---|---|---|---|
-| Unit | Java 17, Android SDK build host | Package-scope fallback, SMSC validation, policy decisions, MCC/MNC normalization, exact hook registry matching, cache TTL/bounds | Passing `./gradlew test` report | Required for every change |
-| Lint/build | Java 17, Android SDK 36 | Manifest/resources, Java compilation, debug/release APK assembly | Passing `./gradlew lint assembleDebug assembleRelease`; APK paths | Required before review |
-| Instrumentation | Emulator or physical Android device | Settings persistence/migration, save status, lifecycle, accessibility announcements, manifest surface | Instrumentation report with device/API image | Required before release |
-| Rooted LSPosed | Rooted physical test device with LSPosed | Module loading, supported signature hook installation, config visibility, scope behavior, process restart/reboot | Log extract with redacted event names and device/LSPosed versions | Required for a supported profile |
+| Unit | Java 17, Android SDK build host | Package-scope fallback, SMSC validation, policy decisions, MCC/MNC normalization, exact hook registry matching, reflection adapter resolution, interceptor pipeline execution, cache TTL/bounds, concurrent diagnostic throttling | Passing `./gradlew test` report | Required for every change |
+| Lint/build | Java 17, Android SDK 36 | Manifest/resources, Java/Kotlin compilation, debug/release APK assembly, lint checks | Passing `./gradlew lint assembleDebug assembleRelease`; APK paths | Required before review |
+| Instrumentation | Emulator or physical Android device | Settings persistence/migration, save status, lifecycle, modern provider declaration, absence of legacy metadata, asset packaging, manifest surface | Instrumentation report with device/API image | Required before release |
+| Rooted LSPosed | Rooted physical test device with LSPosed (API 102) | Module loading, supported signature hook installation, config visibility, scope behavior, process restart/reboot | Log extract with redacted event names and device/LSPosed versions | Required for a supported profile |
 | Dual-SIM routing | Controlled dual-SIM device | SIM1/SIM2 routing, unknown slot, conflicting signals, config changes, preserved original SMSC when uncertain | Per-case outcome row in compatibility registry | Required for dual-SIM rollout |
 | Carrier delivery | Approved test destination and test SIM | Actual SMS delivery and carrier response | Controlled test record without message body or private numbers | Required for staged rollout |
 | Rollback | Rooted device with known-good signed APK | Disable/reinstall/reboot/verify recovery | Timestamped rollback rehearsal record | Required before production rollout |
@@ -26,8 +26,8 @@ This matrix distinguishes automated repository checks from validation that requi
 | D-08 | Unsupported or vendor-specific `send*` method | Method is not hooked and no argument is changed. |
 | D-09 | Malformed stored target-package CSV | Runtime uses the validated default package scope; arbitrary packages are not hooked. |
 | D-10 | Change settings then reboot/restart scoped process | New valid configuration becomes active and no sensitive default logs are emitted. |
-| D-11 | LSPosed API 93+ with `xposedsharedprefs` metadata | Saving settings uses managed preference storage; the hooked process reads validated configuration without legacy directory permission changes. |
-| D-12 | Legacy or unsupported preference manager | The manager-mode request is rejected, the single XML fallback remains readable, and no app-data or shared_prefs directory permission is broadened. |
+| D-11 | LSPosed API 102+ with `XposedProvider` & `XposedService` | Modern service IPC synchronizes `RemotePreferences` without legacy world-readable file mode. |
+| D-12 | Module Standalone / Service Disconnected | UI and module fall back cleanly to local preferences without crashes; UI displays standalone telemetry. |
 
 ## Evidence handling
 
